@@ -11,6 +11,6 @@ fn main() {
         Ok(Response::with((status::Ok, "Hello, world!")))
     }
 
-    println!("Starting up...");
-    Iron::new(hello_world).http("localhost:3000").unwrap();
+    println!("Starting on port 8344...");
+    Iron::new(hello_world).http("localhost:8344").unwrap();
 }
