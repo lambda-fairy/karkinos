@@ -1,4 +1,4 @@
-#![feature(plugin)]
+#![feature(fnbox, plugin)]
 #![plugin(maud_macros)]
 
 extern crate iron;
@@ -32,7 +32,7 @@ fn main() {
         // FIXME: use path
         let result = views::default(
             "Not Found".to_owned(),
-            views::not_found(&r.url.to_string()));
+            views::not_found(r.url.to_string()));
         Ok(Response::with((status::NotFound, html_mime(), result)))
     }
 

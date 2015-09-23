@@ -1,3 +1,4 @@
+use std::boxed::FnBox;
 use std::fmt;
 use std::io;
 
@@ -23,3 +24,5 @@ impl<T> WriteBody for Maud<T> where
         writer.into_result()
     }
 }
+
+pub type Template = Box<FnBox(&mut fmt::Write) -> fmt::Result + Send>;
