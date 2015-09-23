@@ -3,8 +3,8 @@ name = "karkinos"
 version = "0.1.0"
 dependencies = [
  "iron 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "maud 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "maud_macros 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "maud 0.6.0",
+ "maud_macros 0.6.0",
  "mime 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "router 0.0.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -161,14 +161,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "maud"
 version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "maud_macros"
 version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "maud 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "maud 0.6.0",
 ]
 
 [[package]]
