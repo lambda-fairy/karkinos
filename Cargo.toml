@@ -5,5 +5,9 @@ authors = ["Chris Wong <lambda.fairy@gmail.com>"]
 
 [dependencies]
 iron = "*"
+maud = "*"
+maud_macros = "*"
+mime = "*"
+router = "*"
 serde = "*"
 serde_json = "*"
