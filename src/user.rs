@@ -1,4 +1,9 @@
+use serde;
 use serde_json::{self, Value};
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::BufReader;
+use std::path::PathBuf;
 
 #[derive(Debug)]
 pub struct User {
@@ -16,6 +21,21 @@ pub struct User {
 }
 
 impl User {
+    pub fn lookup(name: &str) -> Result<User, serde_json::Error> {
+        let path = {
+            let mut path = PathBuf::from("data");
+            path.push(name);
+            path.set_extension("json");
+            path
+        };
+        let reader = BufReader::new(try!(File::open(path)));
+        let mut de = serde_json::Deserializer::new(reader.bytes());
+        let user = User::from_json(try!(serde::Deserialize::deserialize(&mut de)));
+        try!(de.end());
+        Ok(user)
+    }
+
+    #[allow(dead_code)]
     pub fn from_str(json: &str) -> Result<User, serde_json::Error> {
         serde_json::from_str(json).map(User::from_json)
     }

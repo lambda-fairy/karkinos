@@ -1,31 +1,48 @@
-#![feature(fnbox, plugin)]
+#![feature(core, fnbox, plugin, unboxed_closures)]
 #![plugin(maud_macros)]
 
 extern crate iron;
 extern crate maud;
 #[macro_use] extern crate mime;
 extern crate router;
+extern crate serde;
 extern crate serde_json;
 
 use iron::prelude::*;
 use iron::status;
-use mime::Mime;
 use router::Router;
 
 mod iron_maud;
 mod user;
 mod views;
 
+use user::User;
+
 fn main() {
     let mut router = Router::new();
     router.get("/", home);
+    router.get("/user/:name", user);
     router.get("*", not_found);
 
     fn home(_: &mut Request) -> IronResult<Response> {
         let result = views::default(
             "Karkinos".to_owned(),
             views::home());
-        Ok(Response::with((status::Ok, html_mime(), result)))
+        Ok(Response::with((status::Ok, result)))
+    }
+
+    fn user(r: &mut Request) -> IronResult<Response> {
+        let route = r.extensions.get::<Router>().unwrap();
+        let name = route.find("name").unwrap();
+        match User::lookup(name) {
+            Ok(user) => Ok(Response::with((status::Ok, format!("{:#?}", user)))),
+            Err(_) => {
+                let result = views::default(
+                    name.to_owned(),
+                    views::user_not_found(name.to_owned()));
+                Ok(Response::with((status::NotFound, result)))
+            },
+        }
     }
 
     fn not_found(r: &mut Request) -> IronResult<Response> {
@@ -33,13 +50,9 @@ fn main() {
         let result = views::default(
             "Not Found".to_owned(),
             views::not_found(r.url.to_string()));
-        Ok(Response::with((status::NotFound, html_mime(), result)))
+        Ok(Response::with((status::NotFound, result)))
     }
 
     println!("Starting on port 8344...");
     Iron::new(router).http("localhost:8344").unwrap();
-}
-
-fn html_mime() -> Mime {
-    mime!(Text/Html; Charset=Utf8)
 }

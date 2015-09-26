@@ -1,12 +1,7 @@
-use std::fmt;
+use iron_maud::Template;
 
-use iron::response::WriteBody;
-
-use iron_maud::{Maud, Template};
-
-pub fn default(title: String, body: Template) -> Box<WriteBody + Send> {
-    let mut cell = Some(body);
-    Maud::new(move |w| html!(*w, {
+pub fn default(title: String, body: Template) -> Template {
+    Template::new(move |w| html!(*w, {
         $$"<!DOCTYPE html>"
         html {
             head {
@@ -15,14 +10,14 @@ pub fn default(title: String, body: Template) -> Box<WriteBody + Send> {
             }
             body {
                 h1 $title
-                #call_box cell.take().unwrap()
+                #call body
             }
         }
     }))
 }
 
 pub fn home() -> Template {
-    Box::new(move |w: &mut fmt::Write| html!(*w, {
+    Template::new(move |w| html!(*w, {
         p {
             b "Karkinos"
             " is a list of people interested in the "
@@ -38,10 +33,21 @@ pub fn home() -> Template {
 }
 
 pub fn not_found(url: String) -> Template {
-    Box::new(move |w: &mut fmt::Write| html!(*w, {
+    Template::new(move |w| html!(*w, {
         p {
             "The page at "
-            code $url
+            strong $url
+            " could not be found."
+        }
+        p a href="/" "<< Back to home page"
+    }))
+}
+
+pub fn user_not_found(name: String) -> Template {
+    Template::new(move |w| html!(*w, {
+        p {
+            "The user "
+            strong $name
             " could not be found."
         }
         p a href="/" "<< Back to home page"
