@@ -5,7 +5,6 @@ authors = ["Chris Wong <lambda.fairy@gmail.com>"]
 
 [dependencies]
 iron = "*"
-mime = "*"
 router = "*"
 serde = "*"
 serde_json = "*"
@@ -15,3 +14,6 @@ path = "../maud/maud"
 
 [dependencies.maud_macros]
 path = "../maud/maud_macros"
+
+[dependencies.iron-maud]
+path = "../maud/iron-maud"

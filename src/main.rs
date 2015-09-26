@@ -1,9 +1,9 @@
-#![feature(core, fnbox, plugin, unboxed_closures)]
+#![feature(plugin)]
 #![plugin(maud_macros)]
 
 extern crate iron;
+extern crate iron_maud;
 extern crate maud;
-#[macro_use] extern crate mime;
 extern crate router;
 extern crate serde;
 extern crate serde_json;
@@ -12,7 +12,6 @@ use iron::prelude::*;
 use iron::status;
 use router::Router;
 
-mod iron_maud;
 mod user;
 mod views;
 
