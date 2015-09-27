@@ -34,7 +34,12 @@ fn main() {
         let route = r.extensions.get::<Router>().unwrap();
         let name = route.find("name").unwrap();
         match User::lookup(name) {
-            Ok(user) => Ok(Response::with((status::Ok, format!("{:#?}", user)))),
+            Ok(user) => {
+                let result = views::default(
+                    name.to_owned(),
+                    views::user(user));
+                Ok(Response::with((status::Ok, result)))
+            }
             Err(_) => {
                 let result = views::default(
                     name.to_owned(),
