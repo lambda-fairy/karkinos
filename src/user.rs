@@ -1,7 +1,5 @@
-use serde;
 use serde_json::{self, Value};
 use std::fs::File;
-use std::io::prelude::*;
 use std::io::BufReader;
 use std::path::PathBuf;
 
@@ -28,10 +26,8 @@ impl User {
             path.set_extension("json");
             path
         };
-        let reader = BufReader::new(try!(File::open(path)));
-        let mut de = serde_json::Deserializer::new(reader.bytes());
-        let user = User::from_json(try!(serde::Deserialize::deserialize(&mut de)));
-        try!(de.end());
+        let reader = BufReader::new(File::open(path)?);
+        let user = User::from_json(serde_json::from_reader(reader)?);
         Ok(user)
     }
 
@@ -42,21 +38,21 @@ impl User {
 
     pub fn from_json(json: Value) -> User {
         User {
-            name: json.find("name").and_then(Value::as_string).map(String::from),
-            irc: json.find("irc").and_then(Value::as_string).map(String::from),
+            name: json.find("name").and_then(Value::as_str).map(String::from),
+            irc: json.find("irc").and_then(Value::as_str).map(String::from),
             irc_channels: json.find("irc_channels").and_then(Value::as_array)
                 .and_then(|chans| chans.iter()
-                    .map(|json| json.as_string().map(String::from))
+                    .map(|json| json.as_str().map(String::from))
                     .collect::<Option<Vec<String>>>())
                 .unwrap_or(Vec::new()),
-            show_avatar: json.find("show_avatar").and_then(Value::as_boolean).unwrap_or(false),
-            email: json.find("email").and_then(Value::as_string).map(String::from),
-            discourse: json.find("discourse").and_then(Value::as_string).map(String::from),
-            reddit: json.find("reddit").and_then(Value::as_string).map(String::from),
-            twitter: json.find("twitter").and_then(Value::as_string).map(String::from),
-            blog: json.find("blog").and_then(Value::as_string).map(String::from),
-            website: json.find("website").and_then(Value::as_string).map(String::from),
-            notes: json.find("notes").and_then(Value::as_string).map(String::from),
+            show_avatar: json.find("show_avatar").and_then(Value::as_bool).unwrap_or(false),
+            email: json.find("email").and_then(Value::as_str).map(String::from),
+            discourse: json.find("discourse").and_then(Value::as_str).map(String::from),
+            reddit: json.find("reddit").and_then(Value::as_str).map(String::from),
+            twitter: json.find("twitter").and_then(Value::as_str).map(String::from),
+            blog: json.find("blog").and_then(Value::as_str).map(String::from),
+            website: json.find("website").and_then(Value::as_str).map(String::from),
+            notes: json.find("notes").and_then(Value::as_str).map(String::from),
         }
     }
 }
