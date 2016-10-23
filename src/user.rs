@@ -21,7 +21,7 @@ pub struct User {
 impl User {
     pub fn lookup(name: &str) -> Result<User, serde_json::Error> {
         let path = {
-            let mut path = PathBuf::from("data");
+            let mut path = PathBuf::from("rustaceans.org/data");
             path.push(name);
             path.set_extension("json");
             path
