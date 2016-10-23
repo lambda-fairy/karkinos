@@ -9,4 +9,6 @@ maud = { version = "*", features = ["iron"] }
 maud_macros = "*"
 mime = "*"
 router = "*"
+serde = "*"
+serde_derive = "*"
 serde_json = "*"
