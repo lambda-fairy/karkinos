@@ -6,7 +6,7 @@ use user::User;
 static STYLES: &'static str = r#"
 html {
     box-sizing: border-box;
-    font: 100%/1.5 "Liberation Serif", "Times New Roman", serif;
+    font: 150%/1.5 "Liberation Serif", "Times New Roman", serif;
     background: linear-gradient(to bottom, #445 0%, #001 100%);
 }
 
@@ -16,9 +16,9 @@ html {
 
 body {
     margin: 0 auto;
-    max-width: 50rem;
+    max-width: 30rem;
     min-height: 100vh;
-    padding: 0.5rem 2rem;
+    padding: 0.5rem 1.5rem;
     box-shadow: 0 0 0 8px #ccc, 0 0 0 16px #999, 0 0 0 20px #666;
     background: #fff;
 }
@@ -29,14 +29,14 @@ a {
 }
 
 a:hover, a:active {
-	text-shadow: 0 0 2px #fff, 0 0 8px #d60;
+    text-shadow: 0 0 2px #fff, 0 0 8px #d60;
 }
 
 h1 {
     margin: 0 0 1rem;
     font-family: "Comic Sans MS", sans-serif;
-    font-size: 5rem;
-    letter-spacing: 1.25rem;
+    font-size: 3rem;
+    letter-spacing: 0.75rem;
 }
 
 h1 a {
@@ -54,7 +54,6 @@ table {
 }
 
 th {
-    min-width: 7rem;
     text-align: right;
     vertical-align: top;
 }
