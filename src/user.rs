@@ -1,7 +1,7 @@
 use serde_json;
 use std::fs::File;
 use std::io::BufReader;
-use std::path::PathBuf;
+use std::path::Path;
 
 #[derive(Deserialize, Debug)]
 pub struct User {
@@ -9,7 +9,9 @@ pub struct User {
     // `.remove_empty_strings()` below
     pub name: Option<String>,
     pub irc: Option<String>,
+    #[serde(default)]
     pub irc_channels: Vec<String>,
+    #[serde(default)]
     pub show_avatar: bool,
     pub email: Option<String>,
     pub discourse: Option<String>,
@@ -21,13 +23,7 @@ pub struct User {
 }
 
 impl User {
-    pub fn lookup(name: &str) -> Result<User, serde_json::Error> {
-        let path = {
-            let mut path = PathBuf::from("rustaceans.org/data");
-            path.push(name);
-            path.set_extension("json");
-            path
-        };
+    pub fn from_path<P: AsRef<Path>>(path: P) -> Result<User, serde_json::Error> {
         let reader = BufReader::new(File::open(path)?);
         let mut user: User = serde_json::from_reader(reader)?;
         user.remove_empty_strings();
