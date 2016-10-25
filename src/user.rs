@@ -1,5 +1,7 @@
 use serde_json;
-use std::fs::File;
+use std::collections::BTreeMap;
+use std::ffi::OsStr;
+use std::fs::{self, File};
 use std::io::BufReader;
 use std::path::Path;
 
@@ -55,6 +57,30 @@ impl User {
 
 fn is_whitespace(s: &str) -> bool {
     s.chars().all(char::is_whitespace)
+}
+
+#[derive(Debug)]
+pub struct Users {
+    data: BTreeMap<String, User>,
+}
+
+impl Users {
+    pub fn load<P: AsRef<Path>>(base: P) -> Result<Users, serde_json::Error> {
+        let mut data = BTreeMap::new();
+        for entry in fs::read_dir(base)? {
+            let path = entry?.path();
+            if path.extension() == Some(OsStr::new("json")) {
+                let id = path.file_stem().unwrap().to_string_lossy().into_owned();
+                let user = User::from_path(&path)?;
+                data.insert(id, user);
+            }
+        }
+        Ok(Users { data: data })
+    }
+
+    pub fn get(&self, id: &str) -> Option<&User> {
+        self.data.get(id)
+    }
 }
 
 #[test]

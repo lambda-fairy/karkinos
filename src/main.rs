@@ -15,36 +15,16 @@ use iron::status;
 use iron::typemap::Key;
 use router::Router;
 use persistent::State;
-use std::collections::BTreeMap;
-use std::ffi::OsStr;
-use std::fs;
 use std::sync::{Arc, RwLock};
 
 mod user;
 mod views;
 
-use user::User;
+use user::Users;
 
 #[derive(Copy, Clone)]
 struct UsersKey;
 impl Key for UsersKey { type Value = Users; }
-
-type Users = BTreeMap<String, User>;
-
-fn load_users() -> Result<Users, serde_json::Error> {
-    let mut users = BTreeMap::new();
-    for entry in fs::read_dir("rustaceans.org/data")? {
-        let path = entry?.path();
-        if path.extension() == Some(OsStr::new("json")) {
-            let id = path.file_stem().unwrap().to_string_lossy().into_owned();
-            print!("Loading {}...", id);
-            let user = User::from_path(&path)?;
-            println!(" done!");
-            users.insert(id, user);
-        }
-    }
-    Ok(users)
-}
 
 fn main() {
     let mut router = Router::new();
@@ -80,7 +60,7 @@ fn main() {
 
     let mut chain = Chain::new(router);
     chain.link({
-        let users = load_users().unwrap();
+        let users = Users::load("rustaceans.org/data").unwrap();
         let state = State::<UsersKey>::from(Arc::new(RwLock::new(users)));
         (state.clone(), state)
     });
