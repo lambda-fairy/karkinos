@@ -39,21 +39,21 @@ impl User {
     /// carelessness here.
     fn remove_empty_strings(&mut self) {
         macro_rules! fixup {
-            ($self_:ident, $($field:ident)*) => {
+            ($($field:ident)*) => {
                 $(
                     // If the field is just whitespace, replace it with `None`
                     // This boolean dance is needed to satisfy borrowck
-                    let should_replace = match $self_.$field {
+                    let should_replace = match self.$field {
                         Some(ref s) if is_whitespace(s) => true,
                         _ => false,
                     };
                     if should_replace {
-                        $self_.$field = None;
+                        self.$field = None;
                     }
                 )*
             }
         }
-        fixup!(self, name irc email discourse reddit twitter blog website notes);
+        fixup!(name irc email discourse reddit twitter blog website notes);
     }
 }
 
