@@ -7,8 +7,20 @@ use user::User;
 static STYLES: &'static str = r#"
 html {
     box-sizing: border-box;
-    font: 150%/1.5 "Liberation Serif", "Times New Roman", serif;
+    font: 100%/1.5 "Liberation Serif", "Times New Roman", serif;
     background: linear-gradient(to bottom, #445 0%, #001 100%);
+}
+
+@media (min-width: 450px) {
+    html {
+        font-size: 125%;
+    }
+}
+
+@media (min-width: 750px) {
+    html {
+        font-size: 150%;
+    }
 }
 
 input, button {
@@ -34,29 +46,50 @@ a {
     color: #910;
 }
 
-a:hover, a:active {
+a:hover, a:focus, a:active {
     text-shadow: 0 0 2px #fff, 0 0 8px #d60;
 }
 
 h1 {
+    /* A E S T H E T I C */
     margin: 0 0 1rem;
+    white-space: nowrap;
     font-family: "Comic Sans MS", sans-serif;
-    font-size: 3rem;
-    letter-spacing: 0.75rem;
+    font-size: 1.75rem;
+    letter-spacing: 0.5rem;
+}
+
+@media (min-width: 600px) {
+    h1 {
+        font-size: 3rem;
+        letter-spacing: 0.75rem;
+    }
 }
 
 h1 a {
     color: #f90;
-    text-shadow: 2px 2px #000, -2px -2px #faa;
     text-transform: uppercase;
+    text-shadow: 2px 2px #000, -2px -2px #faa;
+    transition: text-shadow 0.2s;
 }
 
-h1 a:hover, h1 a:active {
-    text-shadow: 8px 8px #000, -8px -8px #faa;
+h1 a:hover, h1 a:focus, h1 a:active {
+    text-shadow: 16px 16px #000, -16px -16px #faa;
+    transition: text-shadow 0.2s;
 }
 
 #q {
-    width: 100%
+    width: 100%;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #000;
+    box-shadow: 0 0 0 0 #f90, 0 0 0 0 #666;
+    transition: box-shadow 0.2s;
+}
+
+#q:focus {
+    border-color: #f90;
+    box-shadow: -2px -2px 0 2px #f90, 2px 2px 0 3px #666;
+    transition: box-shadow 0.2s;
 }
 
 table {
@@ -81,6 +114,7 @@ pub fn layout(r: &Request, title: Option<&str>, body: Markup) -> Markup {
                 }
                 "Karkinos"
             }
+            meta name="viewport" content="width=device-width" /
             style (PreEscaped(STYLES))
             body {
                 h1 a href="/" "🦀Karkinos"
@@ -120,7 +154,7 @@ pub fn not_found(r: &Request) -> Markup {
             strong (r.url)
             " could not be found."
         }
-        p a href="/" "<< Back to home page"
+        p a href="/" "‹ Back to home page"
     })
 }
 

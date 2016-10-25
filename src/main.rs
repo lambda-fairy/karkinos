@@ -91,5 +91,5 @@ fn main() {
     });
 
     println!("Starting on port 8344...");
-    Iron::new(chain).http("localhost:8344").unwrap();
+    Iron::new(chain).http("0.0.0.0:8344").unwrap();
 }
