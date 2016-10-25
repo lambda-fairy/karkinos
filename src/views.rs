@@ -118,31 +118,21 @@ pub fn user(r: &Request, id: &str, user: &User) -> Markup {
     };
     layout(r, Some(&title), html! {
         table {
-            @if let Some(ref x) = user.name {
+            @if let Some(ref nick) = user.irc {
                 tr {
-                    th "Name"
-                    td (x)
-                }
-            }
-            @if let Some(ref x) = user.irc {
-                tr {
-                    th "IRC nick"
-                    td (x)
-                }
-            }
-            @if !user.irc_channels.is_empty() {
-                tr {
-                    th "IRC channels"
-                    td @for (i, channel) in user.irc_channels.iter().enumerate() {
-                        @if i > 0 { ", " }
-                        "#" (channel)
+                    th "IRC"
+                    td {
+                        (nick)
+                        @if !user.irc_channels.is_empty() {
+                            " on "
+                            @for (i, channel) in user.irc_channels.iter().enumerate() {
+                                @if i > 0 { ", " }
+                                a href={ "irc://irc.mozilla.org/" (channel) } {
+                                    "#" (channel)
+                                }
+                            }
+                        }
                     }
-                }
-            }
-            @if let Some(ref x) = user.email {
-                tr {
-                    th "Email"
-                    td a href={ "mailto:" (x) } (x)
                 }
             }
             @if let Some(ref x) = user.discourse {
@@ -157,12 +147,33 @@ pub fn user(r: &Request, id: &str, user: &User) -> Markup {
                     td a href={ "https://reddit.com/user/" (x) } (x)
                 }
             }
-            @if let Some(ref x) = user.notes {
+            @if let Some(ref x) = user.twitter {
                 tr {
-                    th "Notes"
-                    td style="white-space: pre-line" (x)
+                    th "Twitter"
+                    td a href={ "https://twitter.com/" (x) } (x)
                 }
             }
+            @if let Some(ref x) = user.website {
+                tr {
+                    th "Website"
+                    td a href=(x) (x)
+                }
+            }
+            @if let Some(ref x) = user.blog {
+                tr {
+                    th "Blog"
+                    td a href=(x) (x)
+                }
+            }
+            @if let Some(ref x) = user.email {
+                tr {
+                    th "Email"
+                    td a href={ "mailto:" (x) } (x)
+                }
+            }
+        }
+        @if let Some(ref x) = user.notes {
+            p style="white-space: pre-line" (x)
         }
     })
 }
