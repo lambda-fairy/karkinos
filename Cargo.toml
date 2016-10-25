@@ -9,6 +9,7 @@ maud = { version = "*", features = ["iron"] }
 maud_macros = "*"
 mime = "*"
 persistent = { git = "https://github.com/lfairy/persistent", branch = "from-arc" }
+pulldown-cmark = "*"
 router = "*"
 serde = "*"
 serde_derive = "*"

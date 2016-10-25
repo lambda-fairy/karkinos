@@ -1,5 +1,6 @@
 use iron::prelude::*;
-use maud::{Markup, PreEscaped};
+use maud::{Markup, PreEscaped, Render};
+use pulldown_cmark;
 
 use user::User;
 
@@ -173,7 +174,7 @@ pub fn user(r: &Request, id: &str, user: &User) -> Markup {
             }
         }
         @if let Some(ref x) = user.notes {
-            p style="white-space: pre-line" (x)
+            div.notes (Markdown(x))
         }
     })
 }
@@ -187,4 +188,13 @@ pub fn user_not_found(r: &Request, id: &str) -> Markup {
         }
         p a href="/" "<< Back to home page"
     })
+}
+
+struct Markdown<'a>(&'a str);
+
+impl<'a> Render for Markdown<'a> {
+    fn render_to(&self, buffer: &mut String) {
+        let parser = pulldown_cmark::Parser::new(self.0);
+        pulldown_cmark::html::push_html(buffer, parser);
+    }
 }

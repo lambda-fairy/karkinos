@@ -4,6 +4,7 @@
 extern crate iron;
 extern crate maud;
 extern crate persistent;
+extern crate pulldown_cmark;
 extern crate router;
 extern crate serde;
 #[macro_use]
