@@ -11,6 +11,11 @@ html {
     background: linear-gradient(to bottom, #445 0%, #001 100%);
 }
 
+input, button {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
 * {
     box-sizing: inherit;
 }
@@ -50,6 +55,10 @@ h1 a:hover, h1 a:active {
     text-shadow: 8px 8px #000, -8px -8px #faa;
 }
 
+#q {
+    width: 100%
+}
+
 table {
     border-spacing: 0.5rem;
 }
@@ -86,6 +95,10 @@ pub fn layout(r: &Request, title: Option<&str>, body: Markup) -> Markup {
 
 pub fn home(r: &Request) -> Markup {
     layout(r, None, html! {
+        form action=(url_for!(r, "search")) {
+            input name="q" id="q" type="search" placeholder="Enter a name" /
+        }
+        script (PreEscaped("document.getElementById('q').select()"))
         p {
             b "Karkinos"
             " is a list of people interested in the "
