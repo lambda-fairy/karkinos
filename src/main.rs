@@ -2,6 +2,8 @@
 #![plugin(maud_macros)]
 
 extern crate iron;
+#[macro_use]
+extern crate lazy_static;
 extern crate maud;
 extern crate persistent;
 extern crate pulldown_cmark;
@@ -19,6 +21,7 @@ use iron::status;
 use iron::typemap::Key;
 use router::Router;
 use persistent::State;
+use std::env;
 use std::sync::{Arc, RwLock};
 use urlencoded::UrlEncodedQuery;
 
@@ -26,6 +29,18 @@ mod user;
 mod views;
 
 use user::Users;
+
+lazy_static! {
+    static ref IS_PRODUCTION: bool = {
+        let p = env::var("KARKINOS_ENVIRONMENT")
+            .map(|s| s.to_lowercase() == "production")
+            .unwrap_or(false);
+        if p {
+            println!("Note: running in production environment");
+        }
+        p
+    };
+}
 
 #[derive(Copy, Clone)]
 struct UsersKey;
@@ -89,6 +104,23 @@ fn main() {
         let state = State::<UsersKey>::from(Arc::new(RwLock::new(users)));
         (state.clone(), state)
     });
+
+    if *IS_PRODUCTION {
+        chain.link_before(|r: &mut Request| {
+            // Since we're running behind a reverse proxy, the headers are kind
+            // of messed up
+            r.headers.set(iron::headers::Host {
+                hostname: "karkinos.lambda.xyz".to_string(),
+                port: None,
+            });
+            let mut url = r.url.clone().into_generic_url();
+            url.set_scheme("https").unwrap();
+            url.set_host(Some("karkinos.lambda.xyz")).unwrap();
+            url.set_port(None).unwrap();
+            r.url = iron::Url::from_generic_url(url).unwrap();
+            Ok(())
+        });
+    }
 
     println!("Starting on localhost:8344...");
     Iron::new(chain).http("localhost:8344").unwrap();

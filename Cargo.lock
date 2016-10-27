@@ -3,6 +3,7 @@ name = "karkinos"
 version = "0.1.0"
 dependencies = [
  "iron 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lazy_static 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "maud 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "maud_macros 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "mime 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
