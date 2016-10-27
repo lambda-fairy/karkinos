@@ -4,6 +4,7 @@
 extern crate iron;
 #[macro_use]
 extern crate lazy_static;
+extern crate logger;
 extern crate maud;
 extern crate persistent;
 extern crate pulldown_cmark;
@@ -19,6 +20,7 @@ use iron::modifiers::Redirect;
 use iron::prelude::*;
 use iron::status;
 use iron::typemap::Key;
+use logger::Logger;
 use router::Router;
 use persistent::State;
 use std::env;
@@ -99,6 +101,9 @@ fn main() {
     }
 
     let mut chain = Chain::new(router);
+
+    chain.link(Logger::new(None));
+
     chain.link({
         let users = Users::load("rustaceans.org/data").unwrap();
         let state = State::<UsersKey>::from(Arc::new(RwLock::new(users)));

@@ -6,6 +6,7 @@ authors = ["Chris Wong <lambda.fairy@gmail.com>"]
 [dependencies]
 iron = "*"
 lazy_static = "*"
+logger = "*"
 maud = { version = "*", features = ["iron"] }
 maud_macros = "*"
 mime = "*"
