@@ -78,6 +78,10 @@ h1 a:hover, h1 a:focus, h1 a:active {
     transition: text-shadow 0.2s;
 }
 
+.karkinos {
+    font-family: "Comic Sans MS", sans-serif;
+}
+
 #q {
     width: 100%;
     padding: 0.25rem 0.5rem;
@@ -134,15 +138,33 @@ pub fn home(r: &Request) -> Markup {
         }
         script (PreEscaped("document.getElementById('q').select()"))
         p {
-            b "Karkinos"
-            " is a list of people interested in the "
+            span.karkinos "KARKINOS"
+            " is a database of people interested in the "
             a href="https://www.rust-lang.org" "Rust programming language"
+            ". It uses the same data as "
+            a href="http://rustaceans.org" "rustaceans.org"
+            ", but presents it through a different interface."
+        }
+        p "I created Karkinos for these reasons:"
+        ul {
+            li "To provide access for users who browse with JavaScript disabled;"
+            li "To rewrite the backend in Rust (instead of Node.js);"
+            li {
+                "As a proving ground for my template engine, "
+                a href="https://github.com/lfairy/maud" "Maud"
+                ";"
+            }
+            li "To screw around with CSS (this is the most important reason)."
+        }
+        p {
+            "Karkinos is named after a very special "
+            a href="https://en.wikipedia.org/wiki/Cancer_(constellation)#Names" "giant crab"
             "."
         }
         p {
-            "It uses the same data as "
-            a href="http://rustaceans.org" "rustaceans.org"
-            ", but with a different interface."
+            "The source code for this site can be found on "
+            a href="https://github.com/lfairy/karkinos" "GitHub"
+            "."
         }
     })
 }
