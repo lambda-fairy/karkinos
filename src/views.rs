@@ -134,7 +134,7 @@ pub fn layout(r: &Request, title: Option<&str>, body: Markup) -> Markup {
 pub fn home(r: &Request) -> Markup {
     layout(r, None, html! {
         form action=(url_for!(r, "search")) {
-            input name="q" id="q" type="search" placeholder="Enter a name" /
+            input name="q" id="q" type="search" placeholder="Enter a username" /
         }
         script (PreEscaped("document.getElementById('q').select()"))
         p {
