@@ -255,7 +255,7 @@ pub fn user_not_found(r: &Request, id: &str) -> Markup {
             strong (id)
             " could not be found."
         }
-        p a href="/" "<< Back to home page"
+        p a href="/" "‹ Back to home page"
     })
 }
 
