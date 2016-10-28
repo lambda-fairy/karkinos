@@ -106,8 +106,8 @@ fn main() {
 
     chain.link({
         let users = Users::load("rustaceans.org/data").unwrap();
-        let state = State::<UsersKey>::from(Arc::new(RwLock::new(users)));
-        (state.clone(), state)
+        let arc = Arc::new(RwLock::new(users));
+        State::<UsersKey>::both(arc)
     });
 
     if *IS_PRODUCTION {
