@@ -94,5 +94,5 @@ fn smoke() {
             "website": "http://rust-lang.org/"
         }
     "#;
-    serde_json::from_str(DATA).unwrap();
+    let _: User = serde_json::from_str(DATA).unwrap();
 }
