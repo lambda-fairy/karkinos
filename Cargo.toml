@@ -10,7 +10,7 @@ logger = "*"
 maud = { version = "*", features = ["iron"] }
 maud_macros = "*"
 mime = "*"
-persistent = { git = "https://github.com/lfairy/persistent", branch = "from-arc" }
+persistent = "*"
 pulldown-cmark = "*"
 router = "*"
 serde = "*"
