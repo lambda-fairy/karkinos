@@ -65,8 +65,12 @@ fn main() {
         let id = route.find("id").unwrap();
         let users = r.extensions.get::<State<UsersKey>>().unwrap();
         match users.read().unwrap().get(id) {
-            Some(user) => {
+            Some(Ok(user)) => {
                 let body = views::user(r, id, &user);
+                Ok(Response::with((status::Ok, body)))
+            },
+            Some(Err(error)) => {
+                let body = views::user_error(r, id, error);
                 Ok(Response::with((status::Ok, body)))
             }
             None => {

@@ -61,7 +61,7 @@ fn is_whitespace(s: &str) -> bool {
 
 #[derive(Debug)]
 pub struct Users {
-    data: BTreeMap<String, User>,
+    data: BTreeMap<String, Result<User, String>>,
 }
 
 impl Users {
@@ -71,15 +71,17 @@ impl Users {
             let path = entry?.path();
             if path.extension() == Some(OsStr::new("json")) {
                 let id = path.file_stem().unwrap().to_string_lossy().into_owned();
-                let user = User::from_path(&path)?;
+                // Some users' entries actually fail to parse!
+                // Instead of bailing on these, just record the error and move on.
+                let user = User::from_path(&path).map_err(|e| e.to_string());
                 data.insert(id, user);
             }
         }
         Ok(Users { data: data })
     }
 
-    pub fn get(&self, id: &str) -> Option<&User> {
-        self.data.get(id)
+    pub fn get(&self, id: &str) -> Option<Result<&User, &str>> {
+        self.data.get(id).map(|r| r.as_ref().map_err(|e| &e[..]))
     }
 }
 

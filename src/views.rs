@@ -248,6 +248,19 @@ pub fn user(r: &Request, id: &str, user: &User) -> Markup {
     })
 }
 
+pub fn user_error(r: &Request, id: &str, error: &str) -> Markup {
+    layout(r, Some(id), html! {
+        p {
+            "The user "
+            strong (id)
+            " exists, but their entry could not be parsed."
+        }
+        p {
+            "(Error: " (error) ")"
+        }
+    })
+}
+
 pub fn user_not_found(r: &Request, id: &str) -> Markup {
     layout(r, Some(id), html! {
         p {
