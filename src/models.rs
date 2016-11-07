@@ -104,8 +104,10 @@ impl Users {
         }
         let mut index = SearchIndex::new();
         for (id, user) in &data {
-            if let Ok(ref user) = *user {
-                user.with_str_fields(|s| index.add(id.clone(), s));
+            match *user {
+                Ok(ref user) => user.with_str_fields(|s| index.add(id.clone(), s)),
+                // Make sure that invalid entries are still indexed somehow
+                Err(..) => index.add(id.clone(), &id),
             }
         }
         info!("loaded {} rustaceans", data.len());

@@ -98,7 +98,9 @@ fn main() {
         let users = users.read().unwrap();
         if let Some(q) = q {
             let results = users.search(&q);
-            let body = views::search_results(r, &q, &results);
+            let results = results.into_iter()
+                .map(|(id, weight)| (users.get(&id).unwrap(), id, weight));
+            let body = views::search_results(r, &q, results);
             Ok(Response::with((status::Ok, body)))
         } else {
             let body = views::search(r);

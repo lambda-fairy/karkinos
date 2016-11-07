@@ -96,6 +96,17 @@ h1 a:hover, h1 a:focus, h1 a:active {
     transition: box-shadow 0.2s;
 }
 
+hr {
+    border: none;
+    margin: 2rem 0;
+}
+
+hr::before {
+    content: "🦀 🦀 🦀";
+    display: block;
+    text-align: center;
+}
+
 table {
     border-spacing: 0.5rem 0;
 }
@@ -191,30 +202,44 @@ pub fn search(r: &Request) -> Markup {
     })
 }
 
-pub fn search_results(r: &Request, query: &str, results: &[(String, u64)]) -> Markup {
+pub fn search_results<'u, I>(r: &Request, query: &str, results: I) -> Markup where
+    I: Iterator<Item=(Result<&'u User, &'u str>, String, u64)>,
+{
     let title = format!("Search results for “{}”", query);
+    let results = results.map(|(user, id, weight)| match user {
+        Ok(user) => (user_box(r, &id, &user), id, weight),
+        Err(..) => ((id.clone(), html! {}), id, weight),
+    });
+    let mut results = results.peekable();
     layout(r, Some(&title), html! {
-        @for &(ref id, weight) in results {
-            p title={ "Weight: " (weight) } {
-                a href=(url_for!(r, "user", "id" => id[..])) (id)
-            }
-        }
-        @if results.is_empty() {
+        @if results.peek().is_none() {
             p {
                 "No results found. "
                 a href=(url_for!(r, "home")) "Try another query?"
             }
         }
+        @for ((user_title, user_markup), id, weight) in results {
+            h3 title={ "Weight: " (weight) } {
+                a href=(url_for!(r, "user", "id" => &id[..])) (user_title)
+            }
+            (user_markup)
+            hr /
+        }
     })
 }
 
 pub fn user(r: &Request, id: &str, user: &User) -> Markup {
+    let (title, body) = user_box(r, id, user);
+    layout(r, Some(&title), body)
+}
+
+fn user_box(_r: &Request, id: &str, user: &User) -> (String, Markup) {
     let title = if let Some(ref name) = user.name {
         format!("{} ({})", name, id)
     } else {
         id.to_string()
     };
-    layout(r, Some(&title), html! {
+    (title, html! {
         table {
             @if let Some(ref nick) = user.irc {
                 tr {
