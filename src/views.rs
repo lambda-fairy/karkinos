@@ -4,119 +4,6 @@ use pulldown_cmark;
 
 use models::User;
 
-static STYLES: &'static str = r#"
-html {
-    box-sizing: border-box;
-    font: 100%/1.5 "Liberation Serif", "Times New Roman", serif;
-    background: linear-gradient(to bottom, #445 0%, #001 100%);
-}
-
-@media (min-width: 450px) {
-    html {
-        font-size: 125%;
-    }
-}
-
-@media (min-width: 750px) {
-    html {
-        font-size: 150%;
-    }
-}
-
-input, button {
-    font-size: 1rem;
-    line-height: 1.5;
-}
-
-* {
-    box-sizing: inherit;
-}
-
-body {
-    margin: 0 auto;
-    max-width: 30rem;
-    min-height: 100vh;
-    padding: 0.5rem 1.5rem;
-    box-shadow: 0 0 0 8px #ccc, 0 0 0 16px #999, 0 0 0 20px #666;
-    background: #fff;
-}
-
-a {
-    text-decoration: none;
-    color: #910;
-}
-
-a:hover, a:focus, a:active {
-    text-shadow: 0 0 2px #fff, 0 0 8px #d60;
-}
-
-h1 {
-    /* A E S T H E T I C */
-    margin: 0 0 1rem;
-    white-space: nowrap;
-    font-family: "Comic Sans MS", sans-serif;
-    font-size: 1.75rem;
-    letter-spacing: 0.5rem;
-}
-
-@media (min-width: 600px) {
-    h1 {
-        font-size: 3rem;
-        letter-spacing: 0.75rem;
-    }
-}
-
-h1 a {
-    color: #f90;
-    text-transform: uppercase;
-    text-shadow: 2px 2px #000, -2px -2px #faa;
-    transition: text-shadow 0.2s;
-}
-
-h1 a:hover, h1 a:focus, h1 a:active {
-    text-shadow: 16px 16px #000, -16px -16px #faa;
-    transition: text-shadow 0.2s;
-}
-
-.karkinos {
-    font-family: "Comic Sans MS", sans-serif;
-}
-
-#q {
-    width: 100%;
-    padding: 0.25rem 0.5rem;
-    border: 1px solid #000;
-    box-shadow: 0 0 0 0 #f90, 0 0 0 0 #666;
-    transition: box-shadow 0.2s;
-}
-
-#q:focus {
-    border-color: #f90;
-    box-shadow: -2px -2px 0 2px #f90, 2px 2px 0 3px #666;
-    transition: box-shadow 0.2s;
-}
-
-hr {
-    border: none;
-    margin: 2rem 0;
-}
-
-hr::before {
-    content: "🦀 🦀 🦀";
-    display: block;
-    text-align: center;
-}
-
-table {
-    border-spacing: 0.5rem 0;
-}
-
-th {
-    text-align: right;
-    vertical-align: top;
-}
-"#;
-
 pub fn layout(r: &Request, title: Option<&str>, body: Markup) -> Markup {
     html! {
         (PreEscaped("<!DOCTYPE html>"))
@@ -129,7 +16,7 @@ pub fn layout(r: &Request, title: Option<&str>, body: Markup) -> Markup {
                 "Karkinos"
             }
             meta name="viewport" content="width=device-width" /
-            style (PreEscaped(STYLES))
+            link rel="stylesheet" href=(url_for!(r, "static", "path" => "styles.css")) /
             body {
                 h1 a href="/" "🦀Karkinos"
                 @if let Some(title) = title {

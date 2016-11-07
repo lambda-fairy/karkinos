@@ -18,6 +18,7 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
+extern crate staticfile;
 extern crate unicode_normalization;
 extern crate unicode_segmentation;
 extern crate urlencoded;
@@ -28,6 +29,7 @@ use iron::typemap::Key;
 use logger::Logger;
 use router::Router;
 use persistent::State;
+use staticfile::Static;
 use std::env;
 use std::sync::{Arc, RwLock};
 use urlencoded::UrlEncodedQuery;
@@ -63,6 +65,7 @@ fn main() {
     router.get("/", home, "home");
     router.get("/user/:id", user, "user");
     router.get("/search", search, "search");
+    router.get("/static/:path", Static::new("."), "static");
     router.get("*", not_found, "not_found");
 
     fn home(r: &mut Request) -> IronResult<Response> {
