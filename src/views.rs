@@ -2,7 +2,7 @@ use iron::prelude::*;
 use maud::{Markup, PreEscaped, Render};
 use pulldown_cmark;
 
-use user::User;
+use models::User;
 
 static STYLES: &'static str = r#"
 html {

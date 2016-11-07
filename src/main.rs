@@ -30,10 +30,10 @@ use std::env;
 use std::sync::{Arc, RwLock};
 use urlencoded::UrlEncodedQuery;
 
-mod user;
+mod models;
 mod views;
 
-use user::Users;
+use models::Users;
 
 lazy_static! {
     static ref IS_PRODUCTION: bool = {
