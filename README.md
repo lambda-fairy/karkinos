@@ -34,6 +34,6 @@ Once you've got the compiler working, first update the data:
 
 Then run the server:
 
-    cargo run
+    RUST_LOG=logger,karkinos,error cargo run
 
 You can then view the site at <http://localhost:8344>.
