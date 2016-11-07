@@ -132,10 +132,7 @@ pub fn layout(r: &Request, title: Option<&str>, body: Markup) -> Markup {
 
 pub fn home(r: &Request) -> Markup {
     layout(r, None, html! {
-        form action=(url_for!(r, "search")) {
-            input name="q" id="q" type="search" placeholder="Enter a username" /
-        }
-        script (PreEscaped("document.getElementById('q').select()"))
+        (search_form(r))
         p {
             span.karkinos "KARKINOS"
             " is a database of people interested in the "
@@ -168,6 +165,15 @@ pub fn home(r: &Request) -> Markup {
     })
 }
 
+fn search_form(r: &Request) -> Markup {
+    html! {
+        form action=(url_for!(r, "search")) {
+            input name="q" id="q" type="search" placeholder="Search" /
+        }
+        script (PreEscaped("document.getElementById('q').select()"))
+    }
+}
+
 pub fn not_found(r: &Request) -> Markup {
     layout(r, Some("Not found"), html! {
         p {
@@ -176,6 +182,29 @@ pub fn not_found(r: &Request) -> Markup {
             " could not be found."
         }
         p a href="/" "‹ Back to home page"
+    })
+}
+
+pub fn search(r: &Request) -> Markup {
+    layout(r, Some("Search"), html! {
+        (search_form(r))
+    })
+}
+
+pub fn search_results(r: &Request, query: &str, results: &[(String, u64)]) -> Markup {
+    let title = format!("Search results for “{}”", query);
+    layout(r, Some(&title), html! {
+        @for &(ref id, weight) in results {
+            p title={ "Weight: " (weight) } {
+                a href=(url_for!(r, "user", "id" => id[..])) (id)
+            }
+        }
+        @if results.is_empty() {
+            p {
+                "No results found. "
+                a href=(url_for!(r, "home")) "Try another query?"
+            }
+        }
     })
 }
 

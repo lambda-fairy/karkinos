@@ -5,10 +5,12 @@ use std::fs::{self, File};
 use std::io::BufReader;
 use std::path::Path;
 
+use search::SearchIndex;
+
 #[derive(Deserialize, Debug)]
 pub struct User {
     // NOTE: when changing these fields, be sure to update
-    // `.remove_empty_strings()` below
+    // `.remove_empty_strings()` and `.with_str_fields()` below
     pub name: Option<String>,
     pub irc: Option<String>,
     #[serde(default)]
@@ -53,6 +55,25 @@ impl User {
         }
         fixup!(name irc email discourse reddit twitter blog website notes);
     }
+
+    /// Applies the given callback to every searchable field in this entry.
+    ///
+    /// Used by the full-text search machinery.
+    fn with_str_fields<F>(&self, mut callback: F) where F: FnMut(&str) {
+        macro_rules! callme {
+            ($callback:ident, $($field:ident)*) => {
+                $(
+                    if let Some(ref s) = self.$field {
+                        $callback(s);
+                    }
+                )*
+            }
+        }
+        callme!(callback, name irc email discourse reddit twitter blog website notes);
+        for channel in &self.irc_channels {
+            callback(channel);
+        }
+    }
 }
 
 fn is_whitespace(s: &str) -> bool {
@@ -62,6 +83,7 @@ fn is_whitespace(s: &str) -> bool {
 #[derive(Debug)]
 pub struct Users {
     data: BTreeMap<String, Result<User, String>>,
+    index: SearchIndex<String>,
 }
 
 impl Users {
@@ -80,12 +102,22 @@ impl Users {
                 data.insert(id, user);
             }
         }
+        let mut index = SearchIndex::new();
+        for (id, user) in &data {
+            if let Ok(ref user) = *user {
+                user.with_str_fields(|s| index.add(id.clone(), s));
+            }
+        }
         info!("loaded {} rustaceans", data.len());
-        Ok(Users { data: data })
+        Ok(Users { data: data, index: index })
     }
 
     pub fn get(&self, id: &str) -> Option<Result<&User, &str>> {
         self.data.get(id).map(|r| r.as_ref().map_err(|e| &e[..]))
+    }
+
+    pub fn search(&self, query: &str) -> Vec<(String, u64)> {
+        self.index.query(query)
     }
 }
 

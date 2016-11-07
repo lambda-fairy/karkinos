@@ -1,6 +1,7 @@
 #![feature(plugin, proc_macro)]
 #![plugin(maud_macros)]
 
+extern crate caseless;
 extern crate env_logger;
 extern crate iron;
 #[macro_use]
@@ -17,9 +18,10 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
+extern crate unicode_normalization;
+extern crate unicode_segmentation;
 extern crate urlencoded;
 
-use iron::modifiers::Redirect;
 use iron::prelude::*;
 use iron::status;
 use iron::typemap::Key;
@@ -31,6 +33,7 @@ use std::sync::{Arc, RwLock};
 use urlencoded::UrlEncodedQuery;
 
 mod models;
+mod search;
 mod views;
 
 use models::Users;
@@ -88,21 +91,18 @@ fn main() {
     }
 
     fn search(r: &mut Request) -> IronResult<Response> {
-        let id: Option<String> = r.get_ref::<UrlEncodedQuery>().ok()
+        let q: Option<String> = r.get_ref::<UrlEncodedQuery>().ok()
             .and_then(|query| query.get("q"))
             .and_then(|q| q.first().cloned());
-        if let Some(id) = id {
-            let users = r.extensions.get::<State<UsersKey>>().unwrap();
-            let users = users.read().unwrap();
-            if users.get(&id).is_some() {
-                let url = url_for!(r, "user", "id" => id);
-                Ok(Response::with((status::Found, Redirect(url))))
-            } else {
-                let body = views::user_not_found(r, &id);
-                Ok(Response::with((status::NotFound, body)))
-            }
+        let users = r.extensions.get::<State<UsersKey>>().unwrap();
+        let users = users.read().unwrap();
+        if let Some(q) = q {
+            let results = users.search(&q);
+            let body = views::search_results(r, &q, &results);
+            Ok(Response::with((status::Ok, body)))
         } else {
-            not_found(r)
+            let body = views::search(r);
+            Ok(Response::with((status::Ok, body)))
         }
     }
 
