@@ -97,7 +97,7 @@ h1 a:hover, h1 a:focus, h1 a:active {
 }
 
 table {
-    border-spacing: 0.5rem;
+    border-spacing: 0.5rem 0;
 }
 
 th {
