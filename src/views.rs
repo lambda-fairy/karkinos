@@ -107,7 +107,6 @@ th {
 "#;
 
 pub fn layout(r: &Request, title: Option<&str>, body: Markup) -> Markup {
-    let url = r.url.clone().into_generic_url();
     html! {
         (PreEscaped("<!DOCTYPE html>"))
         html {
@@ -123,7 +122,7 @@ pub fn layout(r: &Request, title: Option<&str>, body: Markup) -> Markup {
             body {
                 h1 a href="/" "🦀Karkinos"
                 @if let Some(title) = title {
-                    h2 a href=(url.path()) title="Link to this page" (title)
+                    h2 a href=(r.url) title="Link to this page" (title)
                 }
                 (body)
             }
