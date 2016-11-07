@@ -7,6 +7,7 @@ authors = ["Chris Wong <lambda.fairy@gmail.com>"]
 env_logger = "*"
 iron = "*"
 lazy_static = "*"
+log = "*"
 logger = "*"
 maud = { version = "*", features = ["iron"] }
 maud_macros = "*"

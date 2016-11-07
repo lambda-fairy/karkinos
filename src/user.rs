@@ -73,10 +73,14 @@ impl Users {
                 let id = path.file_stem().unwrap().to_string_lossy().into_owned();
                 // Some users' entries actually fail to parse!
                 // Instead of bailing on these, just record the error and move on.
-                let user = User::from_path(&path).map_err(|e| e.to_string());
+                let user = User::from_path(&path).map_err(|e| {
+                    warn!("could not parse entry for {}: {}", id, e);
+                    e.to_string()
+                });
                 data.insert(id, user);
             }
         }
+        info!("loaded {} rustaceans", data.len());
         Ok(Users { data: data })
     }
 

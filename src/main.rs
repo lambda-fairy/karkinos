@@ -5,6 +5,8 @@ extern crate env_logger;
 extern crate iron;
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
+extern crate log;
 extern crate logger;
 extern crate maud;
 extern crate persistent;
@@ -39,7 +41,9 @@ lazy_static! {
             .map(|s| s.to_lowercase() == "production")
             .unwrap_or(false);
         if p {
-            println!("Note: running in production environment");
+            info!("running in production environment");
+        } else {
+            info!("running in development environment");
         }
         p
     };
@@ -134,6 +138,7 @@ fn main() {
         });
     }
 
-    println!("Starting on localhost:8344...");
-    Iron::new(chain).http("localhost:8344").unwrap();
+    let bind_addr = "localhost:8344";
+    info!("starting on {}", bind_addr);
+    Iron::new(chain).http(bind_addr).unwrap();
 }
