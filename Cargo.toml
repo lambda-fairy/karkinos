@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Chris Wong <lambda.fairy@gmail.com>"]
 
 [dependencies]
+env_logger = "*"
 iron = "*"
 lazy_static = "*"
 logger = "*"

@@ -1,6 +1,7 @@
 #![feature(plugin, proc_macro)]
 #![plugin(maud_macros)]
 
+extern crate env_logger;
 extern crate iron;
 #[macro_use]
 extern crate lazy_static;
@@ -49,6 +50,8 @@ struct UsersKey;
 impl Key for UsersKey { type Value = Users; }
 
 fn main() {
+    env_logger::init().unwrap();
+
     let mut router = Router::new();
     router.get("/", home, "home");
     router.get("/user/:id", user, "user");
