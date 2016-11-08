@@ -18,7 +18,10 @@ pub fn layout(r: &Request, title: Option<&str>, body: Markup) -> Markup {
             meta name="viewport" content="width=device-width" /
             link rel="stylesheet" href=(url_for!(r, "static", "path" => "styles.css")) /
             body {
-                h1 a href="/" "🦀Karkinos"
+                h1 a href="/" {
+                    span.thecrab "🦀"
+                    "Karkinos"
+                }
                 @if let Some(title) = title {
                     h2 a href=(r.url) title="Link to this page" (title)
                 }

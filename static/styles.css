@@ -1,3 +1,11 @@
+@font-face {
+    font-family: Symbola;
+    src:
+        local(Symbola),
+        url(symbola-crab.woff) format('woff'),
+        url(symbola-crab.ttf) format('truetype');
+}
+
 html {
     box-sizing: border-box;
     font: 100%/1.5 "Liberation Serif", "Times New Roman", serif;
@@ -71,6 +79,10 @@ h1 a:hover, h1 a:focus, h1 a:active {
     transition: text-shadow 0.2s;
 }
 
+.thecrab {
+    font-family: Symbola, sans-serif;
+}
+
 .karkinos {
     font-family: "Comic Sans MS", sans-serif;
 }
@@ -97,6 +109,7 @@ hr {
 hr::before {
     content: "🦀 🦀 🦀";
     display: block;
+    font-family: Symbola, sans-serif;
     text-align: center;
 }
 
