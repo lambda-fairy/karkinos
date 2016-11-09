@@ -1,3 +1,4 @@
+#![feature(collections_bound, btree_range)]
 #![feature(plugin, proc_macro)]
 #![plugin(maud_macros)]
 

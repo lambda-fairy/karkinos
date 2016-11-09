@@ -1,6 +1,6 @@
 use caseless::Caseless;
 use std::borrow::Borrow;
-use std::collections::BTreeMap;
+use std::collections::{Bound, BTreeMap};
 use unicode_normalization::UnicodeNormalization;
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -51,11 +51,17 @@ impl<K: Clone + Ord> SearchIndex<K> {
         }
     }
 
-    pub fn query(&self, text: &str) -> Vec<(K, u64)> {
+    pub fn query(&self, text: &str) -> Vec<(K, u64)> where K: ::std::fmt::Debug {
         // Split text into words
         let mut results = text.unicode_words().map(nfkd_case_fold)
             // Look up each word
-            .filter_map(|word| self.index.get(&word))
+            .map(|word|
+                // Match words by prefix so that e.g. "quie" matches "QuietMisdreavus"
+                self.index.range(Bound::Included(&word), Bound::Unbounded::<&str>)
+                .take_while(|&(key, _)| key.starts_with(&word))
+                .flat_map(|(_, result)| result)
+                .map(|(key, count)| (key.clone(), *count))
+                .collect::<BTreeMap<K, u64>>())
             // Intersect the results for each word
             .fold(None, |uberresult, result| {
                 if let Some(mut uberresult) = uberresult {
@@ -65,7 +71,7 @@ impl<K: Clone + Ord> SearchIndex<K> {
                     }
                     Some(uberresult)
                 } else {
-                    Some(result.clone())
+                    Some(result)
                 }
             })
             .unwrap_or_else(|| BTreeMap::new())
