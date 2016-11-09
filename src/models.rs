@@ -59,19 +59,24 @@ impl User {
     /// Applies the given callback to every searchable field in this entry.
     ///
     /// Used by the full-text search machinery.
-    fn with_str_fields<F>(&self, mut callback: F) where F: FnMut(&str) {
+    fn with_str_fields<F>(&self, mut callback: F) where F: FnMut(&str, u64) {
         macro_rules! callme {
-            ($callback:ident, $($field:ident)*) => {
+            ($callback:ident, $($field:ident ($weight:expr))*) => {
                 $(
                     if let Some(ref s) = self.$field {
-                        $callback(s);
+                        $callback(s, $weight);
                     }
                 )*
             }
         }
-        callme!(callback, name irc email discourse reddit twitter blog website notes);
+        callme!(
+            callback,
+            // Give names more weight than URLs and notes
+            name(20) irc(10) email(1) discourse(10) reddit(10)
+            twitter(10) blog(1) website(1) notes(1)
+            );
         for channel in &self.irc_channels {
-            callback(channel);
+            callback(channel, 1);
         }
     }
 }
@@ -104,10 +109,9 @@ impl Users {
         }
         let mut index = SearchIndex::new();
         for (id, user) in &data {
-            match *user {
-                Ok(ref user) => user.with_str_fields(|s| index.add(id.clone(), s)),
-                // Make sure that invalid entries are still indexed somehow
-                Err(..) => index.add(id.clone(), &id),
+            index.add(id.clone(), id, 10);
+            if let Ok(ref user) = *user {
+                user.with_str_fields(|s, w| index.add(id.clone(), s, w));
             }
         }
         info!("loaded {} rustaceans", data.len());

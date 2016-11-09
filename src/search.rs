@@ -16,34 +16,34 @@ impl<K: Clone + Ord> SearchIndex<K> {
         }
     }
 
-    pub fn add(&mut self, key: K, text: &str) {
+    pub fn add(&mut self, key: K, text: &str, weight: u64) {
         for word in text.unicode_words().map(nfkd_case_fold) {
-            self.add_word(key.clone(), word);
+            self.add_word(key.clone(), word, weight);
         }
     }
 
-    fn add_word(&mut self, key: K, word: String) {
+    fn add_word(&mut self, key: K, word: String, weight: u64) {
         let count = self.index
             .entry(word).or_insert_with(BTreeMap::new)
             .entry(key).or_insert(0);
-        *count += 1;
+        *count += weight;
     }
 
     #[allow(dead_code)]  // ... for now!
-    pub fn remove<Q: ?Sized>(&mut self, key: &Q, text: &str) where
+    pub fn remove<Q: ?Sized>(&mut self, key: &Q, text: &str, weight: u64) where
         K: Borrow<Q>, Q: Ord
     {
         for word in text.unicode_words().map(nfkd_case_fold) {
-            self.remove_word(key, &word);
+            self.remove_word(key, &word, weight);
         }
     }
 
-    fn remove_word<Q: ?Sized>(&mut self, key: &Q, word: &str) where
+    fn remove_word<Q: ?Sized>(&mut self, key: &Q, word: &str, weight: u64) where
         K: Borrow<Q>, Q: Ord
     {
         let mut zero = false;
         if let Some(count) = self.index.get_mut(word).and_then(|m| m.get_mut(key)) {
-            *count -= 1;
+            *count -= weight;
             zero = *count == 0;
         }
         if zero {
@@ -55,13 +55,18 @@ impl<K: Clone + Ord> SearchIndex<K> {
         // Split text into words
         let mut results = text.unicode_words().map(nfkd_case_fold)
             // Look up each word
-            .map(|word|
+            .map(|word| {
                 // Match words by prefix so that e.g. "quie" matches "QuietMisdreavus"
-                self.index.range(Bound::Included(&word), Bound::Unbounded::<&str>)
-                .take_while(|&(key, _)| key.starts_with(&word))
-                .flat_map(|(_, result)| result)
-                .map(|(key, count)| (key.clone(), *count))
-                .collect::<BTreeMap<K, u64>>())
+                let mut result = BTreeMap::new();
+                for (key, count) in
+                    self.index.range(Bound::Included(&word), Bound::Unbounded::<&str>)
+                        .take_while(|&(key, _)| key.starts_with(&word))
+                        .flat_map(|(_, result)| result)
+                {
+                    *result.entry(key.clone()).or_insert(0) += *count;
+                }
+                result
+            })
             // Intersect the results for each word
             .fold(None, |uberresult, result| {
                 if let Some(mut uberresult) = uberresult {
