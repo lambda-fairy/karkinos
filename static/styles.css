@@ -115,6 +115,7 @@ hr::before {
 
 table {
     border-spacing: 0.5rem 0;
+    overflow-wrap: break-word;
 }
 
 th {
