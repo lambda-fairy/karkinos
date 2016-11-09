@@ -102,6 +102,9 @@ fn main() {
         if let Some(q) = q {
             let results = users.search(&q);
             let results = results.into_iter()
+                // Restrict search to 20 results, so the server isn't bogged
+                // down too much
+                .take(20)
                 .map(|(id, weight)| (users.get(&id).unwrap(), id, weight));
             let body = views::search_results(r, &q, results);
             Ok(Response::with((status::Ok, body)))
