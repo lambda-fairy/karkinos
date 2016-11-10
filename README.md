@@ -37,3 +37,17 @@ Then run the server:
     RUST_LOG=logger,karkinos,error cargo run
 
 You can then view the site at <http://localhost:8344>.
+
+
+## Licenses
+
+Copyright © 2016 Chris Wong
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+`symbola-crab.ttf` and `symbola-crab.woff` are derived from the Symbola typeface by [George Douros].
+
+`icon.png` is a part of [Noto Emoji], and is licensed under the Apache License version 2.0.
+
+[George Douros]: http://users.teilar.gr/~g1951d/
+[Noto Emoji]: https://github.com/googlei18n/noto-emoji

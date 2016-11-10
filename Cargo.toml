@@ -2,6 +2,7 @@
 name = "karkinos"
 version = "0.1.0"
 authors = ["Chris Wong <lambda.fairy@gmail.com>"]
+license = "AGPL-3.0+"
 
 [dependencies]
 caseless = "*"
