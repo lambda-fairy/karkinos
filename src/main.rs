@@ -29,7 +29,7 @@ use iron::prelude::*;
 use iron::status;
 use iron::typemap::Key;
 use logger::Logger;
-use notify::{DebouncedEvent, RecursiveMode, Watcher};
+use notify::{RecursiveMode, Watcher};
 use router::Router;
 use persistent::State;
 use staticfile::Static;
@@ -139,19 +139,27 @@ fn main() {
         let arc_cloned = arc.clone();
         thread::spawn(move || {
             let (tx, rx) = mpsc::channel();
-            let mut watcher = notify::watcher(tx, Duration::from_secs(10)).unwrap();
+            let mut watcher = notify::raw_watcher(tx).unwrap();
             watcher.watch(DATA_PATH, RecursiveMode::NonRecursive).unwrap();
             loop {
-                match rx.recv() {
-                    Ok(DebouncedEvent::NoticeWrite(..)) |
-                    Ok(DebouncedEvent::NoticeRemove(..)) |
-                    Ok(DebouncedEvent::Chmod(..)) => continue,  // Ignore trivial events
-                    Ok(DebouncedEvent::Error(e, _path)) => error!("watch error: {}", e),
-                    Ok(_) => info!("received file system update; reloading"),
-                    Err(e) => error!("watch error: {}", e),
+                // Wait for a filesystem event
+                let event = rx.recv().unwrap();
+                if let Err(e) = event.op {
+                    error!("watch error: {}", e);
                 }
-                let users = Users::load(DATA_PATH).unwrap();
-                *arc_cloned.write().unwrap() = users;
+                // Drain out any remaining events
+                thread::sleep(Duration::from_secs(5));
+                while let Ok(event) = rx.try_recv() {
+                    if let Err(e) = event.op {
+                        error!("watch error: {}", e);
+                    }
+                }
+                // Reload the data
+                info!("reloading data!");
+                match Users::load(DATA_PATH) {
+                    Ok(users) => *arc_cloned.write().unwrap() = users,
+                    Err(e) => error!("error loading data: {}", e),
+                }
             }
         });
         State::<UsersKey>::both(arc)
