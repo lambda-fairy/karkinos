@@ -37,7 +37,7 @@ fn layout_inner(r: &Request, head_title: Option<&str>, body_title: Option<&str>,
 
 pub fn home(r: &Request) -> Markup {
     layout(r, None, html! {
-        (search_form(r, None))
+        (search_form(r, ""))
         p {
             span.karkinos "KARKINOS"
             " is a database of people interested in the "
@@ -70,14 +70,16 @@ pub fn home(r: &Request) -> Markup {
     })
 }
 
-fn search_form(r: &Request, value: Option<&str>) -> Markup {
+fn search_form(r: &Request, value: &str) -> Markup {
     html! {
         form action=(url_for!(r, "search")) {
-            input name="q" id="q" type="search" placeholder="Search" value=(value.unwrap_or("")) /
+            input name="q" id="q" type="search" placeholder="Search"
+                autocomplete="off" value=(value) /
         }
-        @if value.is_none() {
-            script (PreEscaped("document.getElementById('q').select()"))
-        }
+        script (PreEscaped(r#"
+            var searchBox = document.getElementById('q')
+            if (!searchBox.value) searchBox.select()
+        "#))
     }
 }
 
@@ -94,7 +96,7 @@ pub fn not_found(r: &Request) -> Markup {
 
 pub fn search(r: &Request) -> Markup {
     layout(r, Some("Search"), html! {
-        (search_form(r, None))
+        (search_form(r, ""))
     })
 }
 
@@ -108,7 +110,7 @@ pub fn search_results<'u, I>(r: &Request, query: &str, results: I) -> Markup whe
     });
     let mut results = results.peekable();
     layout_inner(r, Some(&title), None, html! {
-        (search_form(r, Some(query)))
+        (search_form(r, query))
         @if results.peek().is_none() {
             p "No results found."
         }
