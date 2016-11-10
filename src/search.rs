@@ -29,28 +29,6 @@ impl<K: Clone + Ord> SearchIndex<K> {
         *count += weight;
     }
 
-    #[allow(dead_code)]  // ... for now!
-    pub fn remove<Q: ?Sized>(&mut self, key: &Q, text: &str, weight: u64) where
-        K: Borrow<Q>, Q: Ord
-    {
-        for word in text.unicode_words().map(nfkd_case_fold) {
-            self.remove_word(key, &word, weight);
-        }
-    }
-
-    fn remove_word<Q: ?Sized>(&mut self, key: &Q, word: &str, weight: u64) where
-        K: Borrow<Q>, Q: Ord
-    {
-        let mut zero = false;
-        if let Some(count) = self.index.get_mut(word).and_then(|m| m.get_mut(key)) {
-            *count -= weight;
-            zero = *count == 0;
-        }
-        if zero {
-            self.index.get_mut(word).unwrap().remove(key);
-        }
-    }
-
     pub fn query(&self, text: &str) -> Vec<(K, u64)> where K: ::std::fmt::Debug {
         // Split text into words
         let mut results = text.unicode_words().map(nfkd_case_fold)
