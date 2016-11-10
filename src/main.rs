@@ -3,6 +3,7 @@
 #![plugin(maud_macros)]
 
 extern crate caseless;
+extern crate chan_signal;
 extern crate env_logger;
 extern crate iron;
 #[macro_use]
@@ -24,6 +25,7 @@ extern crate unicode_normalization;
 extern crate unicode_segmentation;
 extern crate urlencoded;
 
+use chan_signal::Signal;
 use iron::prelude::*;
 use iron::status;
 use iron::typemap::Key;
@@ -33,6 +35,7 @@ use persistent::State;
 use staticfile::Static;
 use std::env;
 use std::sync::{Arc, RwLock};
+use std::thread;
 use urlencoded::UrlEncodedQuery;
 
 mod models;
@@ -125,8 +128,19 @@ fn main() {
     chain.link(Logger::new(None));
 
     chain.link({
-        let users = Users::load("rustaceans.org/data").unwrap();
+        const DATA_PATH: &'static str = "rustaceans.org/data";
+        // Load user database
+        let users = Users::load(DATA_PATH).unwrap();
         let arc = Arc::new(RwLock::new(users));
+        // Spawn a thread which reloads data on SIGUSR1
+        let signal = chan_signal::notify(&[Signal::USR1]);
+        let arc_cloned = arc.clone();
+        thread::spawn(move || loop {
+            signal.recv().unwrap();
+            info!("received SIGUSR1; reloading data");
+            let new_users = Users::load(DATA_PATH).unwrap();
+            *arc_cloned.write().unwrap() = new_users;
+        });
         State::<UsersKey>::both(arc)
     });
 

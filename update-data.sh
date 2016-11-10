@@ -18,3 +18,5 @@ else
     git checkout master
     git reset --hard origin/master
 fi
+
+pkill -USR1 karkinos

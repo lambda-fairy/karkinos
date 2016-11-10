@@ -5,6 +5,7 @@ authors = ["Chris Wong <lambda.fairy@gmail.com>"]
 
 [dependencies]
 caseless = "*"
+chan-signal = "*"
 env_logger = "*"
 iron = "*"
 lazy_static = "*"
