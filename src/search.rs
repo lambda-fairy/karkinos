@@ -1,5 +1,4 @@
 use caseless::Caseless;
-use std::borrow::Borrow;
 use std::collections::{Bound, BTreeMap};
 use unicode_normalization::UnicodeNormalization;
 use unicode_segmentation::UnicodeSegmentation;
@@ -57,7 +56,7 @@ impl<K: Clone + Ord> SearchIndex<K> {
                     Some(result)
                 }
             })
-            .unwrap_or_else(|| BTreeMap::new())
+            .unwrap_or_else(BTreeMap::new)
             .into_iter()
             // Delete the users for which at least one word doesn't appear
             .filter(|&(_, count)| count > 0)

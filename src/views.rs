@@ -106,7 +106,7 @@ pub fn search_results<'u, I>(r: &Request, query: &str, results: I) -> Markup whe
 {
     let title = format!("Search results for “{}”", query);
     let results = results.map(|(user, id, weight)| match user {
-        Ok(user) => (user_box(r, &id, &user), id, weight),
+        Ok(user) => (user_box(r, &id, user), id, weight),
         Err(..) => ((id.clone(), html! {}), id, weight),
     });
     let mut results = results.peekable();

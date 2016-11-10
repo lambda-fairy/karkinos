@@ -87,7 +87,7 @@ fn main() {
         let users = r.extensions.get::<State<UsersKey>>().unwrap();
         match users.read().unwrap().get(id) {
             Some(Ok(user)) => {
-                let body = views::user(r, id, &user);
+                let body = views::user(r, id, user);
                 Ok(Response::with((status::Ok, body)))
             },
             Some(Err(error)) => {
