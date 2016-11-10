@@ -21,6 +21,7 @@ fn layout_inner(r: &Request, head_title: Option<&str>, body_title: Option<&str>,
             }
             meta name="viewport" content="width=device-width" /
             link rel="stylesheet" href=(url_for!(r, "static", "path" => "styles.css")) /
+            link rel="icon" type="image/png" href=(url_for!(r, "static", "path" => "icon.png")) /
             body {
                 h1 a href="/" {
                     span.thecrab "🦀"
