@@ -102,9 +102,13 @@ fn main() {
     }
 
     fn search(r: &mut Request) -> IronResult<Response> {
-        let q: Option<String> = r.get_ref::<UrlEncodedQuery>().ok()
-            .and_then(|query| query.get("q"))
-            .and_then(|q| q.first().cloned());
+        fn get_query<'r>(r: &'r mut Request, key: &str) -> Option<&'r str> {
+            r.get_ref::<UrlEncodedQuery>().ok()
+                .and_then(|query| query.get(key))
+                .and_then(|q| q.first().map(AsRef::as_ref))
+        }
+        let q = get_query(r, "q").map(ToString::to_string);
+        let is_raw = get_query(r, "raw").and_then(|s| s.parse().ok());
         let users = r.extensions.get::<State<UsersKey>>().unwrap();
         let users = users.read().unwrap();
         if let Some(q) = q {
@@ -114,7 +118,11 @@ fn main() {
                 // down too much
                 .take(20)
                 .map(|(id, weight)| (users.get(&id).unwrap(), id, weight));
-            let body = views::search_results(r, &q, results);
+            let body = if is_raw == Some(true) {
+                views::search_results_raw(r, results)
+            } else {
+                views::search_results(r, &q, results)
+            };
             Ok(Response::with((status::Ok, body)))
         } else {
             let body = views::search(r);

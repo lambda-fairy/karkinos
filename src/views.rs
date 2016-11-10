@@ -21,6 +21,7 @@ fn layout_inner(r: &Request, head_title: Option<&str>, body_title: Option<&str>,
             }
             meta name="viewport" content="width=device-width" /
             link rel="stylesheet" href=(url_for!(r, "static", "path" => "styles.css")) /
+            script src=(url_for!(r, "static", "path" => "scripts.js")) {}
             body {
                 h1 a href="/" {
                     span.thecrab "🦀"
@@ -36,48 +37,49 @@ fn layout_inner(r: &Request, head_title: Option<&str>, body_title: Option<&str>,
 }
 
 pub fn home(r: &Request) -> Markup {
-    layout(r, None, html! {
-        (search_form(r, None))
-        p {
-            span.karkinos "KARKINOS"
-            " is a database of people interested in the "
-            a href="https://www.rust-lang.org" "Rust programming language"
-            ". It uses the same data as "
-            a href="http://rustaceans.org" "rustaceans.org"
-            ", but presents it through a different interface."
-        }
-        p "I created Karkinos for these reasons:"
-        ul {
-            li "To provide access for users who browse with JavaScript disabled;"
-            li "To rewrite the backend in Rust (instead of Node.js);"
-            li {
-                "As a proving ground for my template engine, "
-                a href="https://github.com/lfairy/maud" "Maud"
-                ";"
+    let body = html! {
+        (search_form(r, None, html! {
+            p {
+                span.karkinos "KARKINOS"
+                " is a database of people interested in the "
+                a href="https://www.rust-lang.org" "Rust programming language"
+                ". It uses the same data as "
+                a href="http://rustaceans.org" "rustaceans.org"
+                ", but presents it through a different interface."
             }
-            li "To screw around with CSS (this is the most important reason)."
-        }
-        p {
-            "Karkinos is named after a very special "
-            a href="https://en.wikipedia.org/wiki/Cancer_(constellation)#Names" "giant crab"
-            "."
-        }
-        p {
-            "The source code for this site can be found on "
-            a href="https://github.com/lfairy/karkinos" "GitHub"
-            "."
-        }
-    })
+            p "I created Karkinos for these reasons:"
+            ul {
+                li "To provide access for users who browse with JavaScript disabled;"
+                li "To rewrite the backend in Rust (instead of Node.js);"
+                li {
+                    "As a proving ground for my template engine, "
+                    a href="https://github.com/lfairy/maud" "Maud"
+                    ";"
+                }
+                li "To screw around with CSS (this is the most important reason)."
+            }
+            p {
+                "Karkinos is named after a very special "
+                a href="https://en.wikipedia.org/wiki/Cancer_(constellation)#Names" "giant crab"
+                "."
+            }
+            p {
+                "The source code for this site can be found on "
+                a href="https://github.com/lfairy/karkinos" "GitHub"
+                "."
+            }
+        }))
+    };
+    layout(r, None, body)
 }
 
-fn search_form(r: &Request, value: Option<&str>) -> Markup {
+fn search_form(r: &Request, value: Option<&str>, body: Markup) -> Markup {
     html! {
-        form action=(url_for!(r, "search")) {
-            input name="q" id="q" type="search" placeholder="Search" value=(value.unwrap_or("")) /
+        form#search action=(url_for!(r, "search")) {
+            input#q name="q" type="search" placeholder="Search"
+                autocomplete="off" value=(value.unwrap_or("")) /
         }
-        @if value.is_none() {
-            script (PreEscaped("document.getElementById('q').select()"))
-        }
+        div#results (body)
     }
 }
 
@@ -94,7 +96,7 @@ pub fn not_found(r: &Request) -> Markup {
 
 pub fn search(r: &Request) -> Markup {
     layout(r, Some("Search"), html! {
-        (search_form(r, None))
+        (search_form(r, None, html! {}))
     })
 }
 
@@ -102,13 +104,20 @@ pub fn search_results<'u, I>(r: &Request, query: &str, results: I) -> Markup whe
     I: Iterator<Item=(Result<&'u User, &'u str>, String, u64)>,
 {
     let title = format!("Search results for “{}”", query);
+    layout_inner(r, Some(&title), None, html! {
+        (search_form(r, Some(query), search_results_raw(r, results)))
+    })
+}
+
+pub fn search_results_raw<'u, I>(r: &Request, results: I) -> Markup where
+    I: Iterator<Item=(Result<&'u User, &'u str>, String, u64)>,
+{
     let results = results.map(|(user, id, weight)| match user {
         Ok(user) => (user_box(r, &id, &user), id, weight),
         Err(..) => ((id.clone(), html! {}), id, weight),
     });
     let mut results = results.peekable();
-    layout_inner(r, Some(&title), None, html! {
-        (search_form(r, Some(query)))
+    html! {
         @if results.peek().is_none() {
             p "No results found."
         }
@@ -119,7 +128,7 @@ pub fn search_results<'u, I>(r: &Request, query: &str, results: I) -> Markup whe
             (user_markup)
             hr /
         }
-    })
+    }
 }
 
 pub fn user(r: &Request, id: &str, user: &User) -> Markup {
