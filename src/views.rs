@@ -4,14 +4,18 @@ use pulldown_cmark;
 
 use models::User;
 
-pub fn layout(r: &Request, title: Option<&str>, body: Markup) -> Markup {
+fn layout(r: &Request, title: Option<&str>, body: Markup) -> Markup {
+    layout_inner(r, title, title, body)
+}
+
+fn layout_inner(r: &Request, head_title: Option<&str>, body_title: Option<&str>, body: Markup) -> Markup {
     html! {
         (PreEscaped("<!DOCTYPE html>"))
         html {
             meta charset="utf-8" /
             title {
-                @if let Some(title) = title {
-                    (title) " - "
+                @if let Some(head_title) = head_title {
+                    (head_title) " - "
                 }
                 "Karkinos"
             }
@@ -22,8 +26,8 @@ pub fn layout(r: &Request, title: Option<&str>, body: Markup) -> Markup {
                     span.thecrab "🦀"
                     "Karkinos"
                 }
-                @if let Some(title) = title {
-                    h2 a href=(r.url) title="Link to this page" (title)
+                @if let Some(body_title) = body_title {
+                    h2 a href=(r.url) title="Link to this page" (body_title)
                 }
                 (body)
             }
@@ -103,7 +107,7 @@ pub fn search_results<'u, I>(r: &Request, query: &str, results: I) -> Markup whe
         Err(..) => ((id.clone(), html! {}), id, weight),
     });
     let mut results = results.peekable();
-    layout(r, Some(&title), html! {
+    layout_inner(r, Some(&title), None, html! {
         (search_form(r, Some(query)))
         @if results.peek().is_none() {
             p "No results found."
