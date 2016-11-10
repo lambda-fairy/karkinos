@@ -13,6 +13,7 @@ logger = "*"
 maud = { version = "*", features = ["iron"] }
 maud_macros = "*"
 mime = "*"
+notify = "*"
 persistent = "*"
 pulldown-cmark = "*"
 router = "*"

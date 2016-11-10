@@ -11,6 +11,7 @@ extern crate lazy_static;
 extern crate log;
 extern crate logger;
 extern crate maud;
+extern crate notify;
 extern crate persistent;
 extern crate pulldown_cmark;
 #[macro_use]
@@ -28,11 +29,15 @@ use iron::prelude::*;
 use iron::status;
 use iron::typemap::Key;
 use logger::Logger;
+use notify::{DebouncedEvent, RecursiveMode, Watcher};
 use router::Router;
 use persistent::State;
 use staticfile::Static;
 use std::env;
 use std::sync::{Arc, RwLock};
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
 use urlencoded::UrlEncodedQuery;
 
 mod models;
@@ -40,6 +45,8 @@ mod search;
 mod views;
 
 use models::Users;
+
+const DATA_PATH: &'static str = "rustaceans.org/data";
 
 lazy_static! {
     static ref IS_PRODUCTION: bool = {
@@ -125,8 +132,28 @@ fn main() {
     chain.link(Logger::new(None));
 
     chain.link({
-        let users = Users::load("rustaceans.org/data").unwrap();
+        // Load user data
+        let users = Users::load(DATA_PATH).unwrap();
         let arc = Arc::new(RwLock::new(users));
+        // Reload data automatically when changed
+        let arc_cloned = arc.clone();
+        thread::spawn(move || {
+            let (tx, rx) = mpsc::channel();
+            let mut watcher = notify::watcher(tx, Duration::from_secs(10)).unwrap();
+            watcher.watch(DATA_PATH, RecursiveMode::NonRecursive).unwrap();
+            loop {
+                match rx.recv() {
+                    Ok(DebouncedEvent::NoticeWrite(..)) |
+                    Ok(DebouncedEvent::NoticeRemove(..)) |
+                    Ok(DebouncedEvent::Chmod(..)) => continue,  // Ignore trivial events
+                    Ok(DebouncedEvent::Error(e, _path)) => error!("watch error: {}", e),
+                    Ok(_) => info!("received file system update; reloading"),
+                    Err(e) => error!("watch error: {}", e),
+                }
+                let users = Users::load(DATA_PATH).unwrap();
+                *arc_cloned.write().unwrap() = users;
+            }
+        });
         State::<UsersKey>::both(arc)
     });
 
