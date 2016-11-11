@@ -1,0 +1,10 @@
+language: rust
+rust: nightly
+sudo: false
+
+before_script:
+  - cargo install clippy
+
+script:
+  - cargo test --all-features
+  - cargo clippy -- -D warnings
