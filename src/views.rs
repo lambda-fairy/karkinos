@@ -140,6 +140,10 @@ fn user_title(id: &str, user: Option<&User>) -> String {
 fn user_box(id: &str, user: &User) -> Markup {
     html! {
         table {
+            tr {
+                th "GitHub"
+                td a href={ "https://github.com/" (id) } (id)
+            }
             @if let Some(ref nick) = user.irc {
                 tr {
                     th "IRC"
