@@ -105,38 +105,40 @@ pub fn search_results<'u, I>(r: &Request, query: &str, results: I) -> Markup whe
     I: Iterator<Item=(Result<&'u User, &'u str>, String, u64)>,
 {
     let title = format!("Search results for “{}”", query);
-    let results = results.map(|(user, id, weight)| match user {
-        Ok(user) => (user_box(r, &id, user), id, weight),
-        Err(..) => ((id.clone(), html! {}), id, weight),
-    });
     let mut results = results.peekable();
     layout_inner(r, Some(&title), None, html! {
         (search_form(r, query))
         @if results.peek().is_none() {
             p "No results found."
         }
-        @for ((user_title, user_markup), id, weight) in results {
+        @for (user, id, weight) in results {
             h3 title={ "Weight: " (weight) } {
-                a href=(url_for!(r, "user", "id" => &id[..])) (user_title)
+                a href=(url_for!(r, "user", "id" => &id[..])) {
+                    (user_title(&id, user.ok()))
+                }
             }
-            (user_markup)
+            @if let Ok(user) = user {
+                (user_box(&id, user))
+            }
             hr /
         }
     })
 }
 
 pub fn user(r: &Request, id: &str, user: &User) -> Markup {
-    let (title, body) = user_box(r, id, user);
-    layout(r, Some(&title), body)
+    layout(r, Some(&user_title(id, Some(user))), user_box(id, user))
 }
 
-fn user_box(_r: &Request, id: &str, user: &User) -> (String, Markup) {
-    let title = if let Some(ref name) = user.name {
+fn user_title(id: &str, user: Option<&User>) -> String {
+    if let Some(name) = user.and_then(|user| user.name.as_ref()) {
         format!("{} ({})", name, id)
     } else {
         id.to_string()
-    };
-    (title, html! {
+    }
+}
+
+fn user_box(id: &str, user: &User) -> Markup {
+    html! {
         table {
             @if let Some(ref nick) = user.irc {
                 tr {
@@ -195,7 +197,7 @@ fn user_box(_r: &Request, id: &str, user: &User) -> (String, Markup) {
         @if let Some(ref x) = user.notes {
             div.notes (Markdown(x))
         }
-    })
+    }
 }
 
 pub fn user_error(r: &Request, id: &str, error: &str) -> Markup {
