@@ -101,7 +101,8 @@ pub fn search(r: &Request) -> Markup {
     })
 }
 
-pub fn search_results<'u, I>(r: &Request, query: &str, results: I) -> Markup where
+pub fn search_results<'u, I>(
+    r: &Request, query: &str, results: I, correction: Option<String>) -> Markup where
     I: Iterator<Item=(Result<&'u User, &'u str>, String, u64)>,
 {
     let title = format!("Search results for “{}”", query);
@@ -110,6 +111,11 @@ pub fn search_results<'u, I>(r: &Request, query: &str, results: I) -> Markup whe
         (search_form(r, query))
         @if results.peek().is_none() {
             p "No results found."
+        } @else if let Some(correction) = correction {
+            p {
+                "Showing results for "
+                a href=(url_for!(r, "search", "q" => &correction[..])) strong (correction)
+            }
         }
         @for (user, id, weight) in results {
             h3 title={ "Weight: " (weight) } {

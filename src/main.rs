@@ -1,6 +1,7 @@
 #![feature(plugin, proc_macro)]
 #![plugin(maud_macros)]
 
+extern crate bk_tree;
 extern crate caseless;
 extern crate env_logger;
 extern crate iron;
@@ -108,13 +109,13 @@ fn main() {
         let users = r.extensions.get::<State<UsersKey>>().unwrap();
         let users = users.read().unwrap();
         if let Some(q) = q {
-            let results = users.search(&q);
+            let (results, correction) = users.search(&q);
             let results = results.into_iter()
                 // Restrict search to 20 results, so the server isn't bogged
                 // down too much
                 .take(20)
                 .map(|(id, weight)| (users.get(&id).unwrap(), id, weight));
-            let body = views::search_results(r, &q, results);
+            let body = views::search_results(r, &q, results, correction);
             Ok(Response::with((status::Ok, body)))
         } else {
             let body = views::search(r);

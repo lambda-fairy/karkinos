@@ -122,7 +122,7 @@ impl Users {
         self.data.get(id).map(|r| r.as_ref().map_err(|e| &e[..]))
     }
 
-    pub fn search(&self, query: &str) -> Vec<(String, u64)> {
+    pub fn search(&self, query: &str) -> (Vec<(String, u64)>, Option<String>) {
         self.index.query(query)
     }
 }

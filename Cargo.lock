@@ -2,6 +2,7 @@
 name = "karkinos"
 version = "0.1.0"
 dependencies = [
+ "bk-tree 0.1.6 (git+https://github.com/lfairy/rust-bk-tree.git?branch=iter-all-the-things)",
  "caseless 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "iron 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -47,6 +48,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "bitflags"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "bk-tree"
+version = "0.1.6"
+source = "git+https://github.com/lfairy/rust-bk-tree.git?branch=iter-all-the-things#23ea6c8783d213e370d50b5cbb669f7d7d9eca0e"
 
 [[package]]
 name = "bodyparser"
@@ -745,6 +751,7 @@ dependencies = [
 "checksum bitflags 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8dead7461c1127cf637931a1e50934eb6eee8bff2f74433ac7909e9afcee04a3"
 "checksum bitflags 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "4f67931368edf3a9a51d29886d245f1c3db2f1ef0dcc9e35ff70341b78c10d23"
 "checksum bitflags 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "aad18937a628ec6abcd26d1489012cc0e18c21798210f491af69ded9b881106d"
+"checksum bk-tree 0.1.6 (git+https://github.com/lfairy/rust-bk-tree.git?branch=iter-all-the-things)" = "<none>"
 "checksum bodyparser 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "07b171b407e583dc8f01011a713f20575a81ac60acecf3b8153012709aeb1fd6"
 "checksum bytes 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c129aff112dcc562970abb69e2508b40850dd24c274761bb50fb8a0067ba6c27"
 "checksum caseless 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "b6893f86ac0c9275b5cbba9212ccd71020b447d4c3e2eebad70e1bc47fdd6dfb"
