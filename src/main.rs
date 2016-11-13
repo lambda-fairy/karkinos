@@ -1,4 +1,3 @@
-#![feature(collections_bound, btree_range)]
 #![feature(plugin, proc_macro)]
 #![plugin(maud_macros)]
 
@@ -14,6 +13,7 @@ extern crate maud;
 extern crate notify;
 extern crate persistent;
 extern crate pulldown_cmark;
+extern crate radix_trie;
 #[macro_use]
 extern crate router;
 extern crate serde;

@@ -17,6 +17,7 @@ mime = "*"
 notify = "*"
 persistent = "*"
 pulldown-cmark = "*"
+radix_trie = { git = "https://github.com/michaelsproul/rust_radix_trie.git" }
 router = "*"
 serde = "*"
 serde_derive = "*"

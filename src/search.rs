@@ -1,17 +1,18 @@
 use caseless::Caseless;
-use std::collections::{Bound, BTreeMap};
+use std::collections::BTreeMap;
+use radix_trie::{Trie, TrieCommon, TrieKey};
 use unicode_normalization::UnicodeNormalization;
 use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Debug)]
 pub struct SearchIndex<K> {
-    index: BTreeMap<String, BTreeMap<K, u64>>,
+    index: Trie<String, BTreeMap<K, u64>>,
 }
 
 impl<K: Clone + Ord> SearchIndex<K> {
     pub fn new() -> Self {
         SearchIndex {
-            index: BTreeMap::new(),
+            index: Trie::new(),
         }
     }
 
@@ -23,24 +24,22 @@ impl<K: Clone + Ord> SearchIndex<K> {
 
     fn add_word(&mut self, key: K, word: String, weight: u64) {
         let count = self.index
-            .entry(word).or_insert_with(BTreeMap::new)
+            .get_or_insert_with(word, BTreeMap::new)
             .entry(key).or_insert(0);
         *count += weight;
     }
 
-    pub fn query(&self, text: &str) -> Vec<(K, u64)> where K: ::std::fmt::Debug {
+    pub fn query(&self, text: &str) -> Vec<(K, u64)> {
         // Split text into words
         let mut results = text.unicode_words().map(nfkd_case_fold)
             // Look up each word
             .map(|word| {
                 // Match words by prefix so that e.g. "quie" matches "QuietMisdreavus"
                 let mut result = BTreeMap::new();
-                for (key, count) in
-                    self.index.range(Bound::Included(&word), Bound::Unbounded::<&str>)
-                        .take_while(|&(key, _)| key.starts_with(&word))
-                        .flat_map(|(_, result)| result)
-                {
-                    *result.entry(key.clone()).or_insert(0) += *count;
+                if let Some(subtrie) = self.index.get_raw_descendant(&word) {
+                    for (key, count) in subtrie.values().flat_map(|result| result) {
+                        *result.entry(key.clone()).or_insert(0) += *count;
+                    }
                 }
                 result
             })
@@ -64,6 +63,22 @@ impl<K: Clone + Ord> SearchIndex<K> {
         // Sort by decreasing matchiness
         results.sort_by(|&(_, count1), &(_, count2)| count2.cmp(&count1));
         results
+    }
+}
+
+// FIXME: https://github.com/michaelsproul/rust_radix_trie/issues/32
+trait TrieExt<K, V> {
+    fn get_or_insert_with<F>(&mut self, K, F) -> &mut V where F: FnOnce() -> V;
+}
+
+impl<K: Clone + TrieKey, V> TrieExt<K, V> for Trie<K, V> {
+    fn get_or_insert_with<F>(&mut self, key: K, new: F) -> &mut V where
+        F: FnOnce() -> V
+    {
+        if self.get(&key).is_none() {
+            self.insert(key.clone(), new());
+        }
+        self.get_mut(&key).unwrap()
     }
 }
 
