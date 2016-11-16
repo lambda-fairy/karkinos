@@ -74,7 +74,7 @@ fn main() {
     router.get("/", home, "home");
     router.get("/user/:id", user, "user");
     router.get("/search", search, "search");
-    router.get("/static/:path", Static::new("."), "static");
+    router.get("/static/:path", Static::new(".").cache(Duration::from_secs(60 * 60)), "static");
     router.get("*", not_found, "not_found");
 
     fn home(r: &mut Request) -> IronResult<Response> {

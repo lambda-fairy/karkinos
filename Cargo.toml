@@ -23,7 +23,7 @@ router = "*"
 serde = "*"
 serde_derive = "*"
 serde_json = "*"
-staticfile = "*"
+staticfile = { version = "*", features = ["cache"] }
 unicode-normalization = "*"
 unicode-segmentation = "*"
 urlencoded = "*"
