@@ -1,6 +1,6 @@
 use iron::prelude::*;
 use maud::{Markup, PreEscaped, Render};
-use pulldown_cmark;
+use pulldown_cmark::{self, Event, Parser, Tag};
 
 use models::User;
 
@@ -124,7 +124,7 @@ pub fn search_results<'u, I>(
                 }
             }
             @if let Ok(user) = user {
-                (user_box(&id, user))
+                (user_box(&id, user, 3))
             }
             hr /
         }
@@ -132,7 +132,7 @@ pub fn search_results<'u, I>(
 }
 
 pub fn user(r: &Request, id: &str, user: &User) -> Markup {
-    layout(r, Some(&user_title(id, Some(user))), user_box(id, user))
+    layout(r, Some(&user_title(id, Some(user))), user_box(id, user, 2))
 }
 
 fn user_title(id: &str, user: Option<&User>) -> String {
@@ -143,7 +143,7 @@ fn user_title(id: &str, user: Option<&User>) -> String {
     }
 }
 
-fn user_box(id: &str, user: &User) -> Markup {
+fn user_box(id: &str, user: &User, demote_headers: u32) -> Markup {
     html! {
         table {
             tr {
@@ -205,7 +205,7 @@ fn user_box(id: &str, user: &User) -> Markup {
             }
         }
         @if let Some(ref x) = user.notes {
-            div.notes (Markdown(x))
+            div.notes (Markdown { text: x, demote_headers: demote_headers })
         }
     }
 }
@@ -234,11 +234,22 @@ pub fn user_not_found(r: &Request, id: &str) -> Markup {
     })
 }
 
-struct Markdown<'a>(&'a str);
+struct Markdown<'a> {
+    text: &'a str,
+    demote_headers: u32,
+}
 
 impl<'a> Render for Markdown<'a> {
     fn render_to(&self, buffer: &mut String) {
-        let parser = pulldown_cmark::Parser::new(self.0);
+        let parser = Parser::new_ext(self.text, pulldown_cmark::OPTION_ENABLE_TABLES);
+        // Demote headers
+        let parser = parser.map(|event| match event {
+            Event::Start(Tag::Header(level)) =>
+                Event::Start(Tag::Header(level + self.demote_headers as i32)),
+            Event::End(Tag::Header(level)) =>
+                Event::End(Tag::Header(level + self.demote_headers as i32)),
+            _ => event,
+        });
         pulldown_cmark::html::push_html(buffer, parser);
     }
 }
