@@ -5,6 +5,7 @@ authors = ["Chris Wong <lambda.fairy@gmail.com>"]
 license = "AGPL-3.0+"
 
 [dependencies]
+ammonia = "*"
 bk-tree = { git = "https://github.com/lfairy/rust-bk-tree.git", branch = "iter-all-the-things" }
 caseless = "*"
 env_logger = "*"

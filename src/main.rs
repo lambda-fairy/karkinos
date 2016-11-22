@@ -1,6 +1,7 @@
 #![feature(plugin, proc_macro)]
 #![plugin(maud_macros)]
 
+extern crate ammonia;
 extern crate bk_tree;
 extern crate caseless;
 extern crate env_logger;

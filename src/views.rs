@@ -1,3 +1,4 @@
+use ammonia;
 use iron::prelude::*;
 use maud::{Markup, PreEscaped, Render};
 use pulldown_cmark::{self, Event, Parser, Tag};
@@ -240,7 +241,7 @@ struct Markdown<'a> {
 }
 
 impl<'a> Render for Markdown<'a> {
-    fn render_to(&self, buffer: &mut String) {
+    fn render(&self) -> Markup {
         let parser = Parser::new_ext(self.text, pulldown_cmark::OPTION_ENABLE_TABLES);
         // Demote headers
         let parser = parser.map(|event| match event {
@@ -250,6 +251,9 @@ impl<'a> Render for Markdown<'a> {
                 Event::End(Tag::Header(level + self.demote_headers as i32)),
             _ => event,
         });
-        pulldown_cmark::html::push_html(buffer, parser);
+        let mut unsafe_html = String::new();
+        pulldown_cmark::html::push_html(&mut unsafe_html, parser);
+        let safe_html = ammonia::clean(&unsafe_html);
+        PreEscaped(safe_html)
     }
 }
