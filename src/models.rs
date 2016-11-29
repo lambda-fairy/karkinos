@@ -31,6 +31,11 @@ impl User {
         let reader = BufReader::new(File::open(path)?);
         let mut user: User = serde_json::from_reader(reader)?;
         user.remove_empty_strings();
+        for channel in &mut user.irc_channels {
+            if channel.starts_with("#") {
+                *channel = channel.trim_left_matches('#').to_string();
+            }
+        }
         Ok(user)
     }
 
