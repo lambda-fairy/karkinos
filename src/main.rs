@@ -16,6 +16,7 @@ extern crate notify;
 extern crate persistent;
 extern crate pulldown_cmark;
 extern crate radix_trie;
+extern crate rand;
 #[macro_use]
 extern crate router;
 extern crate serde;
@@ -27,6 +28,7 @@ extern crate unicode_normalization;
 extern crate unicode_segmentation;
 extern crate urlencoded;
 
+use iron::modifiers::Redirect;
 use iron::prelude::*;
 use iron::status;
 use iron::typemap::Key;
@@ -76,6 +78,7 @@ fn main() {
     router.get("/user/:id", user, "user");
     router.get("/search", search, "search");
     router.get("/static/:path", Static::new(".").cache(Duration::from_secs(60 * 60)), "static");
+    router.get("/random", random, "random");
     router.get("*", not_found, "not_found");
 
     fn home(r: &mut Request) -> IronResult<Response> {
@@ -122,6 +125,14 @@ fn main() {
             let body = views::search(r);
             Ok(Response::with((status::Ok, body)))
         }
+    }
+
+    fn random(r: &mut Request) -> IronResult<Response> {
+        let users = r.extensions.get::<State<UsersKey>>().unwrap();
+        let users = users.read().unwrap();
+        let id = users.random_id().expect("user database is empty");
+        let url = url_for!(r, "user", "id" => id);
+        Ok(Response::with((status::Found, Redirect(url))))
     }
 
     fn not_found(r: &mut Request) -> IronResult<Response> {

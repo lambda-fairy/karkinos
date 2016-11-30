@@ -20,6 +20,7 @@ notify = "*"
 persistent = "*"
 pulldown-cmark = "*"
 radix_trie = { git = "https://github.com/michaelsproul/rust_radix_trie.git" }
+rand = "*"
 router = "*"
 serde = "*"
 serde_derive = "*"

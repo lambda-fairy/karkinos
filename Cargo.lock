@@ -17,6 +17,7 @@ dependencies = [
  "persistent 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "pulldown-cmark 0.0.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "radix_trie 0.0.9 (git+https://github.com/michaelsproul/rust_radix_trie.git)",
+ "rand 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "router 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 0.8.19 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 0.8.19 (registry+https://github.com/rust-lang/crates.io-index)",

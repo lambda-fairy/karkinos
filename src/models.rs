@@ -1,3 +1,4 @@
+use rand::{self, Rng};
 use serde_json;
 use std::collections::BTreeMap;
 use std::ffi::OsStr;
@@ -121,6 +122,11 @@ impl Users {
         }
         info!("loaded {} rustaceans", data.len());
         Ok(Users { data: data, index: index })
+    }
+
+    pub fn random_id(&self) -> Option<&str> {
+        let i = rand::thread_rng().gen_range(0, self.data.len());
+        self.data.keys().nth(i).map(AsRef::as_ref)
     }
 
     pub fn get(&self, id: &str) -> Option<Result<&User, &str>> {

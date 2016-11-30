@@ -41,6 +41,11 @@ pub fn home(r: &Request) -> Markup {
     layout(r, None, html! {
         (search_form(r, ""))
         p {
+            "… or view a "
+            a href=(url_for!(r, "random")) "random Rustacean"
+            "."
+        }
+        p {
             span.karkinos "KARKINOS"
             " is a database of people interested in the "
             a href="https://www.rust-lang.org" "Rust programming language"
