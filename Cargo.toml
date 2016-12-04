@@ -6,7 +6,7 @@ license = "AGPL-3.0+"
 
 [dependencies]
 ammonia = "*"
-bk-tree = { git = "https://github.com/lfairy/rust-bk-tree.git", branch = "iter-all-the-things" }
+bk-tree = { git = "https://github.com/lfairy/rust-bk-tree.git" }
 caseless = "*"
 env_logger = "*"
 iron = "*"
