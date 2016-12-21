@@ -46,11 +46,11 @@ use urlencoded::UrlEncodedQuery;
 
 mod models;
 mod search;
+mod update;
 mod views;
 
 use models::Users;
-
-const DATA_PATH: &'static str = "rustaceans.org/data";
+use update::Updater;
 
 lazy_static! {
     static ref IS_PRODUCTION: bool = {
@@ -71,7 +71,18 @@ struct UsersKey;
 impl Key for UsersKey { type Value = Users; }
 
 fn main() {
+    // Initialize the logger
     env_logger::init().unwrap();
+
+    // Make sure we're in the right directory
+    let root_dir = env::current_exe().unwrap()
+        .canonicalize().unwrap()
+        .parent().expect("failed to get application directory")
+        .to_path_buf();
+    info!("using root directory: {}", root_dir.display());
+
+    // Start the updater thingy
+    let updater = Updater::start(&root_dir).unwrap();
 
     let mut router = Router::new();
     router.get("/", home, "home");
@@ -146,14 +157,15 @@ fn main() {
 
     chain.link({
         // Load user data
-        let users = Users::load(DATA_PATH).unwrap();
+        let data_dir = updater.data_dir().to_path_buf();
+        let users = Users::load(&data_dir).unwrap();
         let arc = Arc::new(RwLock::new(users));
         // Reload data automatically when changed
         let arc_cloned = arc.clone();
         thread::spawn(move || {
             let (tx, rx) = mpsc::channel();
             let mut watcher = notify::raw_watcher(tx).unwrap();
-            watcher.watch(DATA_PATH, RecursiveMode::NonRecursive).unwrap();
+            watcher.watch(&data_dir, RecursiveMode::NonRecursive).unwrap();
             loop {
                 // Wait for a filesystem event
                 let event = rx.recv().unwrap();
@@ -169,7 +181,7 @@ fn main() {
                 }
                 // Reload the data
                 info!("reloading data!");
-                match Users::load(DATA_PATH) {
+                match Users::load(&data_dir) {
                     Ok(users) => *arc_cloned.write().unwrap() = users,
                     Err(e) => error!("error loading data: {}", e),
                 }
