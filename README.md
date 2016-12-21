@@ -28,11 +28,7 @@ Karkinos requires a nightly version of the Rust compiler. The easiest way to ins
 
 [rustup]: https://rustup.rs/
 
-Once you've got the compiler working, first update the data:
-
-    ./update-data.sh
-
-Then run the server:
+Once you've got the compiler working, compile and run the server:
 
     RUST_LOG=logger,karkinos,error cargo run
 
