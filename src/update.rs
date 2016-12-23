@@ -9,7 +9,7 @@ use std::time::Duration;
 const REPO_URL: &'static str = "https://github.com/nrc/rustaceans.org.git";
 
 pub struct Updater {
-    path: PathBuf,
+    data_dir: PathBuf,
     keep_going: Arc<AtomicBool>,
     worker: JoinHandle<()>,
 }
@@ -22,11 +22,11 @@ impl Updater {
         }
         info!("found git: {}", String::from_utf8_lossy(&stdout).trim());
 
-        let path = root.as_ref().join("data");
-        if !path.is_dir() {
+        let repo_dir = root.as_ref().join("data");
+        if !repo_dir.is_dir() {
             // Clone the repo
             info!("cloning rustaceans data");
-            let status = git().arg("clone").arg(REPO_URL).arg(&path).status()?;
+            let status = git().arg("clone").arg(REPO_URL).arg(&repo_dir).status()?;
             if !status.success() {
                 return Err(io::Error::new(io::ErrorKind::Other, "failed to clone data repository"));
             }
@@ -35,12 +35,12 @@ impl Updater {
         let keep_going = Arc::new(AtomicBool::new(true));
 
         let worker = {
-            let path = path.clone();
+            let repo_dir = repo_dir.clone();
             let keep_going = keep_going.clone();
             thread::spawn(move || while keep_going.load(Ordering::SeqCst) {
                 thread::sleep(Duration::from_secs(5 * 60));
                 info!("updating rustaceans data");
-                match git().arg("pull").arg("--ff-only").current_dir(&path).status() {
+                match git().arg("pull").arg("--ff-only").current_dir(&repo_dir).status() {
                     Ok(status) if status.success() => {},
                     Ok(status) => error!("update failed with exit status {}", status),
                     Err(e) => error!("update failed with error: {}", e),
@@ -50,14 +50,14 @@ impl Updater {
         };
 
         Ok(Updater {
-            path: path,
+            data_dir: repo_dir.join("data"),
             keep_going: keep_going,
             worker: worker,
         })
     }
 
     pub fn data_dir(&self) -> &Path {
-        &self.path
+        &self.data_dir
     }
 
     #[allow(dead_code)]  // FIXME(#15)

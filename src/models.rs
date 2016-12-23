@@ -98,9 +98,9 @@ pub struct Users {
 }
 
 impl Users {
-    pub fn load<P: AsRef<Path>>(base: P) -> Result<Users, serde_json::Error> {
+    pub fn load<P: AsRef<Path>>(data_dir: P) -> Result<Users, serde_json::Error> {
         let mut data = BTreeMap::new();
-        for entry in fs::read_dir(base.as_ref().join("data"))? {
+        for entry in fs::read_dir(data_dir.as_ref())? {
             let path = entry?.path();
             if path.extension() == Some(OsStr::new("json")) {
                 let id = path.file_stem().unwrap().to_string_lossy().into_owned();
