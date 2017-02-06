@@ -1,4 +1,4 @@
-#![feature(plugin, proc_macro)]
+#![feature(plugin)]
 #![plugin(maud_macros)]
 
 extern crate ammonia;
@@ -198,7 +198,7 @@ fn main() {
                 hostname: "karkinos.lambda.xyz".to_string(),
                 port: None,
             });
-            let mut url = r.url.clone().into_generic_url();
+            let mut url: iron::url::Url = r.url.clone().into();
             url.set_scheme("https").unwrap();
             url.set_host(Some("karkinos.lambda.xyz")).unwrap();
             url.set_port(None).unwrap();

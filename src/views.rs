@@ -1,6 +1,6 @@
 use ammonia;
 use iron::prelude::*;
-use maud::{Markup, PreEscaped, Render};
+use maud::{DOCTYPE, Markup, PreEscaped, Render};
 use pulldown_cmark::{self, Event, Parser, Tag};
 
 use models::User;
@@ -11,7 +11,7 @@ fn layout(r: &Request, title: Option<&str>, body: Markup) -> Markup {
 
 fn layout_inner(r: &Request, head_title: Option<&str>, body_title: Option<&str>, body: Markup) -> Markup {
     html! {
-        (PreEscaped("<!DOCTYPE html>"))
+        (DOCTYPE)
         html {
             meta charset="utf-8" /
             title {
