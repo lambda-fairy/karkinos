@@ -211,7 +211,7 @@ fn user_box(id: &str, user: &User, demote_headers: u32) -> Markup {
             }
         }
         @if let Some(ref x) = user.notes {
-            div.notes (Markdown { text: x, demote_headers: demote_headers })
+            div.notes (Markdown { text: x, demote_headers })
         }
     }
 }
