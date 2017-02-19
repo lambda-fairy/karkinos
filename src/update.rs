@@ -31,7 +31,7 @@ impl Updater {
         {
             let repo_dir = repo_dir.clone();
             thread::spawn(move || loop {
-                thread::sleep(Duration::from_secs(5 * 60));
+                thread::sleep(Duration::from_secs(60 * 60));
                 info!("updating rustaceans data");
                 match git().arg("pull").arg("--ff-only").current_dir(&repo_dir).status() {
                     Ok(status) if status.success() => {},
