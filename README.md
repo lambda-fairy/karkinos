@@ -30,7 +30,7 @@ Karkinos requires a nightly version of the Rust compiler. The easiest way to ins
 
 Once you've got the compiler working, compile and run the server:
 
-    RUST_LOG=logger,karkinos,error cargo run
+    RUST_LOG=logger,karkinos,error cargo run --release
 
 You can then view the site at <http://localhost:8344>.
 
