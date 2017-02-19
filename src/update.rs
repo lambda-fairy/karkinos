@@ -1,17 +1,13 @@
 use std::io;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
-use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::thread::{self, JoinHandle};
+use std::thread;
 use std::time::Duration;
 
 const REPO_URL: &'static str = "https://github.com/nrc/rustaceans.org.git";
 
 pub struct Updater {
     data_dir: PathBuf,
-    keep_going: Arc<AtomicBool>,
-    worker: JoinHandle<()>,
 }
 
 impl Updater {
@@ -32,12 +28,9 @@ impl Updater {
             }
         }
 
-        let keep_going = Arc::new(AtomicBool::new(true));
-
-        let worker = {
+        {
             let repo_dir = repo_dir.clone();
-            let keep_going = keep_going.clone();
-            thread::spawn(move || while keep_going.load(Ordering::SeqCst) {
+            thread::spawn(move || loop {
                 thread::sleep(Duration::from_secs(5 * 60));
                 info!("updating rustaceans data");
                 match git().arg("pull").arg("--ff-only").current_dir(&repo_dir).status() {
@@ -46,24 +39,14 @@ impl Updater {
                     Err(e) => error!("update failed with error: {}", e),
                 }
                 info!("updated successfully");
-            })
-        };
+            });
+        }
 
-        Ok(Updater {
-            data_dir: repo_dir.join("data"),
-            keep_going: keep_going,
-            worker: worker,
-        })
+        Ok(Updater { data_dir: repo_dir.join("data") })
     }
 
     pub fn data_dir(&self) -> &Path {
         &self.data_dir
-    }
-
-    #[allow(dead_code)]  // FIXME(#15)
-    pub fn stop(self) -> thread::Result<()> {
-        self.keep_going.store(false, Ordering::SeqCst);
-        self.worker.join()
     }
 }
 
