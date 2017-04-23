@@ -1,3 +1,6 @@
+// Allow taking `Markup` by value
+#![cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
+
 use ammonia;
 use iron::prelude::*;
 use maud::{DOCTYPE, Markup, PreEscaped, Render};
