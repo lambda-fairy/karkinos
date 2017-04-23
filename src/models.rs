@@ -2,8 +2,9 @@ use rand::{self, Rng};
 use serde_json;
 use std::collections::BTreeMap;
 use std::ffi::OsStr;
+use std::fmt::{self, Display, Formatter};
 use std::fs::{self, File};
-use std::io::BufReader;
+use std::io::{self, BufReader};
 use std::path::Path;
 
 use search::SearchIndex;
@@ -28,7 +29,7 @@ pub struct User {
 }
 
 impl User {
-    pub fn from_path<P: AsRef<Path>>(path: P) -> Result<User, serde_json::Error> {
+    pub fn from_path<P: AsRef<Path>>(path: P) -> Result<User, LoadUserError> {
         let reader = BufReader::new(File::open(path)?);
         let mut user: User = serde_json::from_reader(reader)?;
         user.remove_empty_strings();
@@ -98,7 +99,7 @@ pub struct Users {
 }
 
 impl Users {
-    pub fn load<P: AsRef<Path>>(data_dir: P) -> Result<Users, serde_json::Error> {
+    pub fn load<P: AsRef<Path>>(data_dir: P) -> Result<Users, LoadUserError> {
         let mut data = BTreeMap::new();
         for entry in fs::read_dir(data_dir.as_ref())? {
             let path = entry?.path();
@@ -135,6 +136,34 @@ impl Users {
 
     pub fn search(&self, query: &str) -> (Vec<(String, u64)>, Option<String>) {
         self.index.query(query)
+    }
+}
+
+/// An error encountered while loading the set of users.
+#[derive(Debug)]
+pub enum LoadUserError {
+    Json(serde_json::Error),
+    Io(io::Error),
+}
+
+impl From<serde_json::Error> for LoadUserError {
+    fn from(e: serde_json::Error) -> Self {
+        LoadUserError::Json(e)
+    }
+}
+
+impl From<io::Error> for LoadUserError {
+    fn from(e: io::Error) -> Self {
+        LoadUserError::Io(e)
+    }
+}
+
+impl Display for LoadUserError {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match *self {
+            LoadUserError::Json(ref e) => Display::fmt(e, f),
+            LoadUserError::Io(ref e) => Display::fmt(e, f),
+        }
     }
 }
 
