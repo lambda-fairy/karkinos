@@ -6,7 +6,7 @@ license = "AGPL-3.0+"
 
 [dependencies]
 ammonia = "*"
-bk-tree = { git = "https://github.com/lfairy/rust-bk-tree.git" }
+bk-tree = "*"
 caseless = "*"
 env_logger = "*"
 iron = "*"
@@ -14,12 +14,11 @@ lazy_static = "*"
 log = "*"
 logger = "*"
 maud = { version = "*", features = ["iron"] }
-maud_macros = "*"
 mime = "*"
 notify = "*"
 persistent = "*"
 pulldown-cmark = "*"
-radix_trie = { git = "https://github.com/michaelsproul/rust_radix_trie.git" }
+radix_trie = "*"
 rand = "*"
 router = "*"
 serde = "*"

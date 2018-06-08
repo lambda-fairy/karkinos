@@ -1,5 +1,5 @@
-#![feature(plugin)]
-#![plugin(maud_macros)]
+#![feature(proc_macro)]
+#![feature(proc_macro_non_items)]
 
 extern crate ammonia;
 extern crate bk_tree;
@@ -72,7 +72,7 @@ impl Key for UsersKey { type Value = Users; }
 
 fn main() {
     // Initialize the logger
-    env_logger::init().unwrap();
+    env_logger::init();
 
     // Make sure we're in the right directory
     let root_dir = env::current_exe().unwrap()
